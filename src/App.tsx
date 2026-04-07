@@ -1,18 +1,7 @@
-import { useState } from 'react'
-import './App.css'
+import { TestStyles } from '@/components/TestStyles'
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <div className="app">
-      <h1>MyBandLab</h1>
-      <p>Configuración inicial completado ✅</p>
-      <button onClick={() => setCount((count) => count + 1)}>
-        count is {count}
-      </button>
-    </div>
-  )
+  return <TestStyles />
 }
 
 export default App
