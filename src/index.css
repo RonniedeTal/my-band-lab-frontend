@@ -3,84 +3,174 @@
 
 /* Variables de color personalizadas */
 @theme {
-  /* Colores principales */
-  --color-primary: #8B5CF6;
-  --color-primary-purple: #8B5CF6;
-  --color-primary-pink: #EC4899;
-  --color-primary-cyan: #06B6D4;
-  
-  /* Colores de fondo */
-  --color-background-primary: #0A0A0F;
-  --color-background-secondary: #111827;
-  
-  /* Colores de texto */
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #9CA3AF;
-  
-  /* Colores de bordes */
-  --color-border: #1F2937;
-  
-  /* Colores de hover */
-  --color-hover-purple: #7C3AED;
-  --color-hover-pink: #DB2777;
-  --color-hover-cyan: #0891B2;
+  /* Colores primarios */
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-200: #ddd6fe;
+  --color-primary-300: #c4b5fd;
+  --color-primary-400: #a78bfa;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
+
+  /* Colores secundarios */
+  --color-secondary-50: #fdf2f8;
+  --color-secondary-100: #fce7f3;
+  --color-secondary-200: #fbcfe8;
+  --color-secondary-300: #f9a8d4;
+  --color-secondary-400: #f472b6;
+  --color-secondary-500: #ec4899;
+  --color-secondary-600: #db2777;
+  --color-secondary-700: #be185d;
+  --color-secondary-800: #9d174d;
+  --color-secondary-900: #831843;
+
+  /* Colores de acento */
+  --color-accent-50: #ecfeff;
+  --color-accent-100: #cffafe;
+  --color-accent-200: #a5f3fc;
+  --color-accent-300: #67e8f9;
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #06b6d4;
+  --color-accent-600: #0891b2;
+  --color-accent-700: #0e7490;
+  --color-accent-800: #155e75;
+  --color-accent-900: #164e63;
+
+  /* Colores de fondo para modo oscuro */
+  --color-dark-bg: #0a0a0f;
+  --color-dark-surface: #111827;
+  --color-dark-surface-hover: #1f2937;
+  --color-dark-border: #374151;
+  --color-dark-text: #f9fafb;
+  --color-dark-text-secondary: #9ca3af;
+
+  /* Gradientes personalizados */
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #06b6d4 100%);
+  --gradient-dark: linear-gradient(135deg, #1f2937 0%, #111827 100%);
 }
 
-/* Estilos base */
-@layer base {
-  body {
-    background-color: var(--color-background-primary);
-    color: var(--color-text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
+/* Estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Utilidades personalizadas */
-@layer utilities {
-  /* Gradiente principal */
-  .bg-gradient-primary {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-  }
-  
-  /* Gradiente para cards */
-  .bg-gradient-card {
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.5) 0%, rgba(17, 24, 39, 0.5) 100%);
-  }
-  
-  /* Gradiente para hover */
-  .bg-gradient-hover {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-  }
-  
-  /* Texto con gradiente */
-  .text-gradient {
-    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #06B6D4 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-  
-  /* Efecto glow al hover */
-  .hover-glow {
-    transition: all 0.3s ease;
-  }
-  
-  .hover-glow:hover {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-  }
-  
-  /* Animación de pulso lento */
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
-/* Animaciones personalizadas */
-@keyframes pulse {
-  0%, 100% {
+body {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-text);
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personalizada para modo oscuro */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-dark-surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-600);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-500);
+}
+
+/* Clases de utilidad personalizadas */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-bg {
+  background: var(--gradient-primary);
+}
+
+.gradient-bg-dark {
+  background: var(--gradient-dark);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
     opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
   }
   50% {
-    opacity: 0.5;
+    box-shadow: 0 0 0 8px rgba(139, 92, 246, 0);
   }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Toast animations */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-slide-out {
+  animation: slide-out 0.3s ease-in;
 }

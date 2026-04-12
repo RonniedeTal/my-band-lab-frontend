@@ -1,0 +1,16 @@
+export { HomePage } from './HomePage';
+export { LoginPage } from './LoginPage';
+export { RegisterPage } from './RegisterPage';
+export { ArtistsPage } from './ArtistsPage';
+export { ArtistDetailPage } from './ArtistDetailPage';
+export { GroupsPage } from './GroupsPage';
+export { CreateGroupPage } from './CreateGroupPage';
+export { GroupDetailPage } from './GroupDetailPage';
+export { EditGroupPage } from './EditGroupPage';
+export { ProfilePage } from './ProfilePage';
+export { ExplorePage } from './ExplorePage';
+export { AdminDashboardPage } from './AdminDashboardPage';
+export { AdminLoginPage } from './AdminLoginPage';
+export { SearchResultsPage } from './SearchResultsPage';
+export { FavoritesPage } from './FavoritesPage';
+export { FavoriteGroupsPage } from './FavoriteGroupsPage';
