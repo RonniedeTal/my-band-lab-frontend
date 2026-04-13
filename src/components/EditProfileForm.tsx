@@ -4,7 +4,8 @@ import { UPDATE_USER } from '../graphql/mutations/user.mutations';
 import { Button } from './ui/Button';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
-import { User, Mail, UserCircle } from 'lucide-react';
+import { User, Mail } from 'lucide-react';
+import { ImageUploader } from './ImageUploader';
 
 interface EditProfileFormProps {
   onSuccess?: () => void;
@@ -31,6 +32,10 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess, onC
       showError('Error', 'No se pudo actualizar el perfil');
     },
   });
+
+  const handleImageUploaded = (imageUrl: string) => {
+    setFormData({ ...formData, profileImageUrl: imageUrl });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +72,12 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess, onC
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* ... resto del JSX igual ... */}
+      <div className="flex justify-center">
+        <ImageUploader
+          currentImageUrl={formData.profileImageUrl}
+          onImageUploaded={handleImageUploaded}
+        />
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
           <User className="w-4 h-4" />
@@ -113,7 +123,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess, onC
         />
       </div>
 
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
           <UserCircle className="w-4 h-4" />
           URL de imagen de perfil
@@ -128,7 +138,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess, onC
         <p className="text-xs text-gray-500 mt-1">
           Opcional. Ingresa una URL de imagen para tu perfil
         </p>
-      </div>
+      </div> */}
 
       <div className="flex gap-4 pt-4">
         <Button type="submit" variant="primary" disabled={loading} className="flex-1">
