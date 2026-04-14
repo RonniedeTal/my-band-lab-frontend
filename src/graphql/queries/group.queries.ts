@@ -10,6 +10,7 @@ export const GET_GROUPS_PAGINATED = gql`
         description
         genre
         verified
+        logoUrl
         founder {
           id
           name
@@ -43,6 +44,7 @@ export const SEARCH_GROUPS = gql`
         description
         genre
         verified
+        logoUrl
         founder {
           id
           name
@@ -74,6 +76,7 @@ export const GET_GROUP_BY_ID = gql`
       description
       genre
       verified
+      logoUrl
       founder {
         id
         name
@@ -102,6 +105,7 @@ export const GET_GROUPS_BY_GENRE = gql`
       description
       genre
       verified
+      logoUrl
       founder {
         id
         name

@@ -19,6 +19,7 @@ interface LoginResponse {
   surname: string;
   email?: string;
   role?: string;
+  profileImageUrl?: string;
 }
 
 export const useAuth = () => {
@@ -45,6 +46,10 @@ export const useAuth = () => {
       localStorage.removeItem('user');
     }
   }, [user]);
+
+  const getToken = () => {
+    return getAuthToken();
+  };
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -88,6 +93,7 @@ export const useAuth = () => {
           surname: data.surname,
           email: email,
           role: userRole,
+          profileImageUrl: data.profileImageUrl || undefined,
         };
 
         setUser(userData);
@@ -164,5 +170,6 @@ export const useAuth = () => {
     user,
     loading,
     error,
+    token: getToken(),
   };
 };

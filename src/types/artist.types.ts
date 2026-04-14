@@ -13,6 +13,8 @@ export interface Artist {
   mainInstrument?: Instrument;
   createdAt?: string;
   updatedAt?: string;
+  profileImageUrl?: string;
+  logoUrl?: string;
 }
 
 export interface CreateArtistData {
@@ -27,4 +29,6 @@ export interface UpdateArtistData {
   stageName?: string;
   biography?: string;
   genre?: MusicGenre;
+  profileImageUrl?: string;
+  logoUrl?: string;
 }

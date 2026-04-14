@@ -7,6 +7,7 @@ import { EditProfileForm } from '../components/EditProfileForm';
 import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { User, Edit, Music, Mail, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { ImageUploader } from '@/components/ImageUploader';
 
 export const ProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -73,6 +74,21 @@ export const ProfilePage: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
+                  <div className="flex justify-center mb-4">
+                    <ImageUploader
+                      currentImageUrl={user.profileImageUrl}
+                      onImageUploaded={(newImageUrl) => {
+                        // Actualizar el usuario en localStorage
+                        const updatedUser = { ...user, profileImageUrl: newImageUrl };
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
+                        // Recargar para reflejar cambios
+                        window.location.reload();
+                      }}
+                      onError={(errorMsg) => {
+                        console.error('Error al subir imagen:', errorMsg);
+                      }}
+                    />
+                  </div>
                   <div className="flex items-center gap-3">
                     {user.profileImageUrl ? (
                       <img

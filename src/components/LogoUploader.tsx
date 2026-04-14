@@ -1,21 +1,27 @@
 import React, { useRef, useState } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
-interface ImageUploaderProps {
-  currentImageUrl?: string;
-  onImageUploaded: (imageUrl: string) => void;
+interface LogoUploaderProps {
+  currentLogoUrl?: string | null;
+  entityId: string | number;
+  entityType: 'artist' | 'group';
+  onLogoUploaded: (logoUrl: string) => void;
   onError?: (error: string) => void;
+  className?: string;
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({
-  currentImageUrl,
-  onImageUploaded,
+export const LogoUploader: React.FC<LogoUploaderProps> = ({
+  currentLogoUrl,
+  entityId,
+  entityType,
+  onLogoUploaded,
   onError,
+  className = '',
 }) => {
   const [isUploading, setIsUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(currentLogoUrl || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { error: showError } = useNotification();
   const { token } = useAuth();
@@ -41,6 +47,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     return true;
   };
 
+  const getUploadUrl = (): string => {
+    if (entityType === 'artist') {
+      return `http://localhost:9000/api/artists/${entityId}/logo`;
+    }
+    return `http://localhost:9000/api/groups/${entityId}/logo`;
+  };
+
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -56,12 +69,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     setIsUploading(true);
 
-    // Aquí irá la subida a Cloudinary o backend
     const formData = new FormData();
     formData.append('image', file);
 
     try {
-      const response = await fetch('http://localhost:9000/api/upload/profile-image', {
+      const response = await fetch(getUploadUrl(), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,35 +83,32 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(errorData || 'Error al subir la imagen');
+        throw new Error(errorData || 'Error al subir el logo');
       }
 
       const data = await response.json();
-      console.log('✅ Imagen subida:', data.imageUrl);
+      console.log(`✅ Logo de ${entityType} subido:`, data.imageUrl);
 
-      // Actualizar preview con la URL real
       setPreviewUrl(data.imageUrl);
-      onImageUploaded(data.imageUrl);
+      onLogoUploaded(data.imageUrl);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Error al subir la imagen';
+      const errorMsg = err instanceof Error ? err.message : 'Error al subir el logo';
       console.error('❌ Upload error:', err);
       if (onError) onError(errorMsg);
       showError('Error', errorMsg);
-      // Restaurar preview anterior
-      setPreviewUrl(currentImageUrl || null);
+      setPreviewUrl(currentLogoUrl || null);
     } finally {
       setIsUploading(false);
     }
 
-    // Limpiar input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  const handleRemove = async () => {
+  const handleRemove = () => {
     setPreviewUrl(null);
-    onImageUploaded('');
+    onLogoUploaded('');
   };
 
   const triggerFileInput = () => {
@@ -107,7 +116,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className={`flex flex-col items-center gap-3 ${className}`}>
       <input
         ref={fileInputRef}
         type="file"
@@ -116,14 +125,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         className="hidden"
       />
 
-      {/* Preview */}
       <div className="relative group">
         {previewUrl ? (
           <div className="relative">
             <img
               src={previewUrl}
-              alt="Preview"
-              className="w-24 h-24 rounded-full object-cover border-2 border-purple-500"
+              alt="Logo"
+              className="w-24 h-24 rounded-lg object-cover border-2 border-purple-500"
             />
             <button
               onClick={handleRemove}
@@ -135,10 +143,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         ) : (
           <div
             onClick={triggerFileInput}
-            className="w-24 h-24 rounded-full bg-gray-700 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors border-2 border-dashed border-gray-500"
+            className="w-24 h-24 rounded-lg bg-gray-700 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-600 transition-colors border-2 border-dashed border-gray-500"
           >
             <ImageIcon className="w-8 h-8 text-gray-400" />
-            <span className="text-xs text-gray-400 mt-1">Subir</span>
+            <span className="text-xs text-gray-400 mt-1">Logo</span>
           </div>
         )}
       </div>
@@ -156,7 +164,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
         >
           <Upload className="w-3 h-3" />
-          Cambiar foto
+          {currentLogoUrl ? 'Cambiar logo' : 'Subir logo'}
         </button>
       )}
     </div>

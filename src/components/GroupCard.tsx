@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Calendar, CheckCircle, Heart, UserPlus, UserCheck } from 'lucide-react';
+import { Users, Calendar, CheckCircle, Heart, UserPlus, UserCheck, Music } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useFollowGroup } from '../hooks/useFollowGroup';
 import { useFavoriteGroup } from '../hooks/useFavoriteGroup';
@@ -21,7 +21,20 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
     <div className="block group">
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-5 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
         <Link to={`/groups/${group.id}`} className="block">
-          <div className="flex items-start justify-between mb-3">
+          {/* Logo y nombre en la misma fila */}
+          <div className="flex items-center gap-3 mb-3">
+            {/* Logo del grupo */}
+            {group.logoUrl ? (
+              <img
+                src={group.logoUrl}
+                alt={group.name}
+                className="w-12 h-12 rounded-lg object-cover border border-purple-500"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                <Music className="w-6 h-6 text-white" />
+              </div>
+            )}
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
                 {group.name}

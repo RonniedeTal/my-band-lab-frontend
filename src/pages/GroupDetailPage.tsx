@@ -21,6 +21,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
 import { useFollowGroup } from '../hooks/useFollowGroup';
 import { useFavoriteGroup } from '../hooks/useFavoriteGroup';
+import { LogoUploader } from '../components/LogoUploader';
 
 export const GroupDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -127,8 +128,42 @@ export const GroupDetailPage: React.FC = () => {
         </Button>
 
         {/* Hero Section */}
+
         <div className="bg-gradient-to-r from-purple-900/50 via-pink-900/50 to-blue-900/50 rounded-2xl p-8 mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-4">
+              {/* Logo del grupo - solo visible para el fundador */}
+              {isFounder && (
+                <LogoUploader
+                  currentLogoUrl={group.logoUrl}
+                  entityId={group.id}
+                  entityType="group"
+                  onLogoUploaded={() => {
+                    refetch();
+                  }}
+                  onError={(errorMsg) => {
+                    console.error('Error al subir logo:', errorMsg);
+                  }}
+                />
+              )}
+
+              {/* Si no es fundador pero hay logo, mostrarlo */}
+              {!isFounder && group.logoUrl && (
+                <img
+                  src={group.logoUrl}
+                  alt={`${group.name} logo`}
+                  className="w-20 h-20 rounded-lg object-cover border-2 border-purple-500"
+                />
+              )}
+
+              {/* Si no es fundador y no hay logo, mostrar icono por defecto */}
+              {!isFounder && !group.logoUrl && (
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                  <Music className="w-10 h-10 text-white" />
+                </div>
+              )}
+            </div>
+
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
                 <h1 className="text-3xl md:text-4xl font-bold text-white">{group.name}</h1>
