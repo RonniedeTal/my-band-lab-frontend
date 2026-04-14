@@ -10,6 +10,8 @@ export const GET_ARTISTS_PAGINATED = gql`
         biography
         genre
         verified
+        logoUrl
+        profileImageUrl
         user {
           id
           name
@@ -48,6 +50,8 @@ export const SEARCH_ARTISTS = gql`
         biography
         genre
         verified
+        logoUrl
+        profileImageUrl
         user {
           id
           name
@@ -77,6 +81,8 @@ export const GET_ARTIST_BY_ID = gql`
       biography
       genre
       verified
+      logoUrl
+      profileImageUrl
       user {
         id
         name
@@ -107,6 +113,8 @@ export const GET_ARTISTS_BY_GENRE = gql`
       biography
       genre
       verified
+      logoUrl
+      profileImageUrl
       user {
         id
         name

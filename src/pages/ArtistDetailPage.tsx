@@ -16,13 +16,14 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useFollowArtist } from '../hooks/useFollowArtist';
 import { useFavoriteArtist } from '../hooks/useFavoriteArtist';
+import { LogoUploader } from '../components/LogoUploader';
 
 export const ArtistDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { data, loading, error } = useQuery(GET_ARTIST_BY_ID, {
+  const { data, loading, error, refetch } = useQuery(GET_ARTIST_BY_ID, {
     variables: { id: parseInt(id || '0') },
     skip: !id,
   });
@@ -31,6 +32,8 @@ export const ArtistDetailPage: React.FC = () => {
 
   const { isFollowing, toggleFollow } = useFollowArtist(artist?.id as number);
   const { isFavorite, toggleFavorite } = useFavoriteArtist(artist?.id as number);
+
+  const isOwner = String(user?.id) === String(artist?.user?.id);
 
   if (loading) {
     return (
@@ -57,6 +60,7 @@ export const ArtistDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-dark-bg">
       {/* Hero Section con gradiente */}
+
       <div className="relative bg-gradient-to-r from-purple-900/50 via-pink-900/50 to-blue-900/50">
         <div className="container mx-auto px-4 py-12">
           <Button onClick={() => navigate('/artists')} variant="ghost" className="mb-6">
@@ -66,11 +70,37 @@ export const ArtistDetailPage: React.FC = () => {
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Avatar/Imagen placeholder */}
-            <div className="w-32 h-32 md:w-48 md:h-48 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-              <span className="text-5xl md:text-7xl font-bold text-white">
-                {artist.stageName.charAt(0).toUpperCase()}
-              </span>
-            </div>
+            {isOwner && (
+              <LogoUploader
+                currentLogoUrl={artist.logoUrl}
+                entityId={artist.id}
+                entityType="artist"
+                onLogoUploaded={() => {
+                  refetch();
+                }}
+                onError={(errorMsg) => {
+                  console.error('Error al subir logo:', errorMsg);
+                }}
+              />
+            )}
+
+            {/* Si no es dueño pero hay logo, mostrarlo */}
+            {!isOwner && artist.logoUrl && (
+              <img
+                src={artist.logoUrl}
+                alt={artist.stageName}
+                className="w-32 h-32 md:w-48 md:h-48 rounded-lg object-cover border-2 border-purple-500"
+              />
+            )}
+
+            {/* Si no hay logo y no es dueño, mostrar iniciales */}
+            {!isOwner && !artist.logoUrl && (
+              <div className="w-32 h-32 md:w-48 md:h-48 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                <span className="text-5xl md:text-7xl font-bold text-white">
+                  {artist.stageName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2 flex-wrap">

@@ -12,6 +12,7 @@ export interface MusicGroup {
   verified: boolean;
   createdAt?: string;
   updatedAt?: string;
+  logoUrl?: string;
 }
 
 export interface CreateGroupData {
@@ -24,6 +25,7 @@ export interface UpdateGroupData {
   name?: string;
   description?: string;
   genre?: MusicGenre;
+  logoUrl?: string;
 }
 
 export interface GroupPageResponse {
