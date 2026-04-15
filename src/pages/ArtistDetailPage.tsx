@@ -12,11 +12,19 @@ import {
   Heart,
   UserPlus,
   UserCheck,
+  Play,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useFollowArtist } from '../hooks/useFollowArtist';
 import { useFavoriteArtist } from '../hooks/useFavoriteArtist';
 import { LogoUploader } from '../components/LogoUploader';
+import { SongUploader } from '../components/SongUploader';
+import type { Song } from '../types/song.types';
+import { AlbumList } from '@/components/AlbumList';
+import { useAudioPlayer } from '../context/AudioPlayerContext';
+
+import { TopSongs } from '../components/TopSongs';
+import { useTopSongsByArtist } from '../hooks/useSongPlay';
 
 export const ArtistDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,10 +38,13 @@ export const ArtistDetailPage: React.FC = () => {
 
   const artist = data?.artistById;
 
+  const { playSong } = useAudioPlayer();
   const { isFollowing, toggleFollow } = useFollowArtist(artist?.id as number);
   const { isFavorite, toggleFavorite } = useFavoriteArtist(artist?.id as number);
 
   const isOwner = String(user?.id) === String(artist?.user?.id);
+
+  const { topSongs, loading: topSongsLoading } = useTopSongsByArtist(artist?.id as number, 5);
 
   if (loading) {
     return (
@@ -56,6 +67,15 @@ export const ArtistDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  // Preparar canciones para el reproductor con información del artista
+  const songsWithArtistInfo =
+    artist.songs?.map((song: Song) => ({
+      ...song,
+      artistName: artist.stageName,
+      artistId: artist.id,
+      coverImage: artist.logoUrl,
+    })) || [];
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -144,6 +164,72 @@ export const ArtistDetailPage: React.FC = () => {
                 {artist.biography || 'No hay biografía disponible para este artista.'}
               </p>
             </div>
+            {/* Subir canciones - solo para dueños verificados */}
+            {isOwner && artist.verified && (
+              <SongUploader
+                entityId={artist.id}
+                entityType="artist"
+                onSongUploaded={() => {
+                  refetch();
+                }}
+              />
+            )}
+
+            {/* Lista de canciones */}
+            {artist.songs && artist.songs.length > 0 && (
+              <div className="bg-gray-800/30 rounded-xl p-6">
+                <h2 className="text-2xl font-bold text-white mb-4">Canciones</h2>
+                <div className="space-y-3">
+                  {artist.songs.map((song: Song) => (
+                    <div
+                      key={song.id}
+                      onClick={() =>
+                        playSong(
+                          {
+                            ...song,
+                            artistName: artist.stageName,
+                            artistId: artist.id,
+                            coverImage: artist.logoUrl,
+                          },
+                          songsWithArtistInfo
+                        )
+                      }
+                      className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors group"
+                    >
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{song.title}</p>
+                        <p className="text-xs text-gray-400">
+                          {Math.floor(song.duration / 60)}:
+                          {(song.duration % 60).toString().padStart(2, '0')} • {song.playCount}{' '}
+                          reproducciones
+                        </p>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Play className="w-5 h-5 text-purple-400" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Álbumes */}
+            {artist.albums && (
+              <div className="bg-gray-800/30 rounded-xl p-6">
+                <h2 className="text-2xl font-bold text-white mb-4">Álbumes</h2>
+                <AlbumList
+                  albums={artist.albums}
+                  songs={artist.songs}
+                  entityId={artist.id}
+                  entityType="artist"
+                  onAlbumCreated={() => refetch()}
+                  onSongAddedToAlbum={() => refetch()}
+                  isOwner={isOwner}
+                  entityName={artist.stageName}
+                  entityImage={artist.logoUrl}
+                />
+              </div>
+            )}
 
             {/* Instrumentos */}
             {artist.instruments && artist.instruments.length > 0 && (
@@ -193,6 +279,13 @@ export const ArtistDetailPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <TopSongs
+              songs={topSongs}
+              entityType="artist"
+              entityName={artist?.stageName}
+              loading={topSongsLoading}
+            />
 
             {/* Botones de acción - solo visibles para usuarios autenticados */}
             <div className="bg-gray-800/30 rounded-xl p-6">

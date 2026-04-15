@@ -1,6 +1,7 @@
 import type { User } from './user.types';
 import type { MusicGenre } from './enums';
 import type { Instrument } from './instrument.types';
+import type { Song } from './song.types';
 
 export interface Artist {
   id: string | number;
@@ -15,6 +16,7 @@ export interface Artist {
   updatedAt?: string;
   profileImageUrl?: string;
   logoUrl?: string;
+  songs?: Song[];
 }
 
 export interface CreateArtistData {

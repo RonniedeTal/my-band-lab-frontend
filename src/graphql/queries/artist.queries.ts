@@ -98,6 +98,31 @@ export const GET_ARTIST_BY_ID = gql`
         id
         name
       }
+      songs {
+        id
+        title
+        duration
+        fileUrl
+        playCount
+        createdAt
+        updatedAt
+      }
+      albums {
+        id
+        title
+        description
+        coverImageUrl
+        releaseDate
+        songs {
+          id
+          title
+          duration
+          fileUrl
+          playCount
+        }
+        createdAt
+        updatedAt
+      }
       createdAt
       updatedAt
     }
