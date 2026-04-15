@@ -16,18 +16,27 @@ import {
   Edit,
   Heart,
   UserCheck,
+  Play,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
 import { useFollowGroup } from '../hooks/useFollowGroup';
 import { useFavoriteGroup } from '../hooks/useFavoriteGroup';
 import { LogoUploader } from '../components/LogoUploader';
+import { SongUploader } from '../components/SongUploader';
+import { AlbumList } from '@/components/AlbumList';
+import { useAudioPlayer } from '@/context/AudioPlayerContext';
+import { Song } from '@/types/song.types';
+import { TopSongs } from '../components/TopSongs';
+import { useTopSongsByGroup } from '../hooks/useSongPlay';
 
 export const GroupDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { success, error: showError, info } = useNotification();
+
+  const { playSong } = useAudioPlayer();
 
   const { data, loading, error, refetch } = useQuery(GET_GROUP_BY_ID, {
     variables: { id: parseInt(id || '0') },
@@ -43,6 +52,8 @@ export const GroupDetailPage: React.FC = () => {
   // Mover hooks AQUÍ, antes de cualquier return condicional
   const { isFollowing, toggleFollow } = useFollowGroup(group?.id as number);
   const { isFavorite, toggleFavorite } = useFavoriteGroup(group?.id as number);
+
+  const { topSongs, loading: topSongsLoading } = useTopSongsByGroup(group?.id as number, 5);
 
   if (loading) {
     return (
@@ -70,6 +81,14 @@ export const GroupDetailPage: React.FC = () => {
   const isMember = group.members?.some(
     (member: { id: number; name: string; surname: string; email: string }) => member.id === user?.id
   );
+
+  const songsWithGroupInfo =
+    group.songs?.map((song: Song) => ({
+      ...song,
+      groupName: group.name,
+      groupId: group.id,
+      coverImage: group.logoUrl,
+    })) || [];
 
   const handleJoinGroup = async () => {
     if (!user) {
@@ -284,6 +303,83 @@ export const GroupDetailPage: React.FC = () => {
                 {group.description || 'No hay descripción disponible para este grupo.'}
               </p>
             </div>
+            {/* Subir canciones - solo para fundadores verificados */}
+            {isFounder && group.verified && (
+              <SongUploader
+                entityId={group.id}
+                entityType="group"
+                onSongUploaded={() => {
+                  refetch();
+                }}
+              />
+            )}
+
+            {/* Lista de canciones */}
+            {group.songs && group.songs.length > 0 && (
+              <div className="bg-gray-800/30 rounded-xl p-6">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Music className="w-5 h-5" />
+                  Canciones ({group.songs.length})
+                </h2>
+                <div className="space-y-3">
+                  {group.songs.map((song: Song) => (
+                    <div
+                      key={song.id}
+                      onClick={() =>
+                        playSong(
+                          {
+                            ...song,
+                            groupName: group.name,
+                            groupId: group.id,
+                            coverImage: group.logoUrl,
+                          },
+                          songsWithGroupInfo
+                        )
+                      }
+                      className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors group"
+                    >
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{song.title}</p>
+                        <p className="text-xs text-gray-400">
+                          {Math.floor(song.duration / 60)}:
+                          {(song.duration % 60).toString().padStart(2, '0')} • {song.playCount}{' '}
+                          reproducciones
+                        </p>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Play className="w-5 h-5 text-purple-400" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Top Canciones */}
+            <TopSongs
+              songs={topSongs}
+              entityType="group"
+              entityName={group?.name}
+              loading={topSongsLoading}
+            />
+
+            {/* ÁLBUMES - DENTRO de la columna izquierda */}
+            {group.albums && group.albums.length > 0 && (
+              <div className="bg-gray-800/30 rounded-xl p-6">
+                <h2 className="text-2xl font-bold text-white mb-4">Álbumes</h2>
+                <AlbumList
+                  albums={group.albums}
+                  songs={group.songs}
+                  entityId={group.id}
+                  entityType="group"
+                  onAlbumCreated={() => refetch()}
+                  onSongAddedToAlbum={() => refetch()}
+                  isOwner={isFounder}
+                  entityName={group.name}
+                  entityImage={group.logoUrl}
+                />
+              </div>
+            )}
           </div>
 
           {/* Miembros - solo el fundador puede gestionar */}

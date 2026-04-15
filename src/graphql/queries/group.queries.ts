@@ -89,6 +89,31 @@ export const GET_GROUP_BY_ID = gql`
         surname
         email
       }
+      songs {
+        id
+        title
+        duration
+        fileUrl
+        playCount
+        createdAt
+        updatedAt
+      }
+      albums {
+        id
+        title
+        description
+        coverImageUrl
+        releaseDate
+        songs {
+          id
+          title
+          duration
+          fileUrl
+          playCount
+        }
+        createdAt
+        updatedAt
+      }
       formedDate
       createdAt
       updatedAt

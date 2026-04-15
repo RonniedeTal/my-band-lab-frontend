@@ -1,5 +1,6 @@
 import type { User } from './user.types';
 import type { MusicGenre } from './enums';
+import type { Song } from './song.types';
 
 export interface MusicGroup {
   id: string | number;
@@ -13,6 +14,7 @@ export interface MusicGroup {
   createdAt?: string;
   updatedAt?: string;
   logoUrl?: string;
+  songs?: Song[];
 }
 
 export interface CreateGroupData {
