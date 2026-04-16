@@ -29,6 +29,7 @@ import { useAudioPlayer } from '@/context/AudioPlayerContext';
 import { Song } from '@/types/song.types';
 import { TopSongs } from '../components/TopSongs';
 import { useTopSongsByGroup } from '../hooks/useSongPlay';
+import { AddToPlaylistButton } from '../components/AddToPlaylistButton';
 
 export const GroupDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -346,8 +347,12 @@ export const GroupDetailPage: React.FC = () => {
                           reproducciones
                         </p>
                       </div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Play className="w-5 h-5 text-purple-400" />
+                      <div className="flex items-center gap-2">
+                        <AddToPlaylistButton songId={song.id} songTitle={song.title} />
+
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Play className="w-5 h-5 text-purple-400" />
+                        </div>
                       </div>
                     </div>
                   ))}

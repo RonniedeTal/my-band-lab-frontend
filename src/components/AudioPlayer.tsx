@@ -11,6 +11,7 @@ import {
   Music,
 } from 'lucide-react';
 import { useRegisterPlay } from '../hooks/useSongPlay';
+import { useAudioPlayer } from '@/context/AudioPlayerContext';
 
 interface Song {
   id: number;
@@ -39,7 +40,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onPrevious,
   onClose,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  // const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
@@ -50,6 +51,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const previousSongIdRef = useRef<number | undefined>(undefined);
 
   const { registerPlay } = useRegisterPlay();
+  const { isPlaying, setIsPlaying } = useAudioPlayer();
 
   // Formatear tiempo (segundos a mm:ss)
   const formatTime = (seconds: number): string => {
@@ -92,10 +94,12 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
         audioRef.current.play();
+        setIsPlaying(true);
       }
-      setIsPlaying(!isPlaying);
+      // setIsPlaying(!isPlaying);
     }
   };
 

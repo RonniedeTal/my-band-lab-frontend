@@ -25,6 +25,7 @@ import { useAudioPlayer } from '../context/AudioPlayerContext';
 
 import { TopSongs } from '../components/TopSongs';
 import { useTopSongsByArtist } from '../hooks/useSongPlay';
+import { AddToPlaylistButton } from '../components/AddToPlaylistButton';
 
 export const ArtistDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -183,20 +184,22 @@ export const ArtistDetailPage: React.FC = () => {
                   {artist.songs.map((song: Song) => (
                     <div
                       key={song.id}
-                      onClick={() =>
-                        playSong(
-                          {
-                            ...song,
-                            artistName: artist.stageName,
-                            artistId: artist.id,
-                            coverImage: artist.logoUrl,
-                          },
-                          songsWithArtistInfo
-                        )
-                      }
-                      className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors group"
+                      className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors group"
                     >
-                      <div className="flex-1">
+                      <div
+                        className="flex-1 cursor-pointer"
+                        onClick={() =>
+                          playSong(
+                            {
+                              ...song,
+                              artistName: artist.stageName,
+                              artistId: artist.id,
+                              coverImage: artist.logoUrl,
+                            },
+                            songsWithArtistInfo
+                          )
+                        }
+                      >
                         <p className="text-white font-medium">{song.title}</p>
                         <p className="text-xs text-gray-400">
                           {Math.floor(song.duration / 60)}:
@@ -204,8 +207,24 @@ export const ArtistDetailPage: React.FC = () => {
                           reproducciones
                         </p>
                       </div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Play className="w-5 h-5 text-purple-400" />
+                      <div className="flex items-center gap-2">
+                        <AddToPlaylistButton songId={song.id} songTitle={song.title} />
+                        <button
+                          onClick={() =>
+                            playSong(
+                              {
+                                ...song,
+                                artistName: artist.stageName,
+                                artistId: artist.id,
+                                coverImage: artist.logoUrl,
+                              },
+                              songsWithArtistInfo
+                            )
+                          }
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-purple-500/20"
+                        >
+                          <Play className="w-5 h-5 text-purple-400" />
+                        </button>
                       </div>
                     </div>
                   ))}
