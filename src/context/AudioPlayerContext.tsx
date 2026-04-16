@@ -16,10 +16,12 @@ interface AudioPlayerContextType {
   currentSong: Song | null;
   playlist: Song[];
   currentIndex: number;
+  isPlaying: boolean;
   playSong: (song: Song, songsList: Song[]) => void;
   playNext: () => void;
   playPrevious: () => void;
   closePlayer: () => void;
+  setIsPlaying: (playing: boolean) => void;
 }
 
 const AudioPlayerContext = createContext<AudioPlayerContextType | undefined>(undefined);
@@ -37,6 +39,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [playlist, setPlaylist] = useState<Song[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Cargar última canción del localStorage
   useEffect(() => {
@@ -56,6 +59,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const index = songsList.findIndex((s) => s.id === song.id);
     setCurrentIndex(index);
     setCurrentSong(song);
+    setIsPlaying(true);
 
     // Guardar en localStorage
     localStorage.setItem(
@@ -73,6 +77,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
       setCurrentSong(playlist[nextIndex]);
+      setIsPlaying(true);
     }
   };
 
@@ -81,6 +86,7 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const prevIndex = currentIndex - 1;
       setCurrentIndex(prevIndex);
       setCurrentSong(playlist[prevIndex]);
+      setIsPlaying(true);
     }
   };
 
@@ -97,10 +103,12 @@ export const AudioPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ c
         currentSong,
         playlist,
         currentIndex,
+        isPlaying,
         playSong,
         playNext,
         playPrevious,
         closePlayer,
+        setIsPlaying,
       }}
     >
       {children}

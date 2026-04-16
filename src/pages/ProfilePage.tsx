@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { User, Edit, Music, Mail, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
+import { UserPlaylists } from '../components/UserPlaylists';
 
 export const ProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -179,6 +180,9 @@ export const ProfilePage: React.FC = () => {
             </>
           )}
         </div>
+      </div>
+      <div className="bg-gray-800/30 rounded-xl p-6 mt-8">
+        <UserPlaylists limit={4} />
       </div>
     </div>
   );

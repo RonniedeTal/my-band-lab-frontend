@@ -4,7 +4,17 @@ import { Button } from './ui/Button';
 import { useAuth } from '../hooks/useAuth';
 import { BottomNavigation } from './BottomNavigation';
 import { GlobalSearch } from './GlobalSearch';
-import { Menu, X, LogOut, User as UserIcon, Music, Users, Shield, Heart } from 'lucide-react';
+import {
+  Menu,
+  X,
+  LogOut,
+  User as UserIcon,
+  Music,
+  Users,
+  Shield,
+  Heart,
+  ListMusic,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface LayoutProps {
@@ -72,6 +82,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <Music className="w-4 h-4" />
                   Grupos
+                </Link>
+                <Link
+                  to="/playlists"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <ListMusic className="w-4 h-4" />
+                  Playlists
                 </Link>
 
                 {isAuthenticated() ? (

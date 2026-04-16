@@ -2,6 +2,7 @@ import React from 'react';
 import { SongStats } from '../types/song.types';
 import { Play, TrendingUp, Users } from 'lucide-react';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
+import { AddToPlaylistButton } from './AddToPlaylistButton';
 
 interface TopSongsProps {
   songs: SongStats[];
@@ -73,11 +74,10 @@ export const TopSongs: React.FC<TopSongsProps> = ({
 
       <div className="space-y-3">
         {songs.map((song, index) => (
-          <div
-            key={song.songId}
-            onClick={() => handlePlay(song)}
+          <div key={song.songId}>
+            {/* onClick={() => handlePlay(song)}
             className="flex items-center gap-4 p-3 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors group"
-          >
+          > */}
             <div className="w-8 text-center">
               <span className="text-2xl font-bold text-gray-500">#{index + 1}</span>
             </div>
@@ -96,9 +96,15 @@ export const TopSongs: React.FC<TopSongsProps> = ({
               </div>
             </div>
 
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-              <Play className="w-5 h-5 text-purple-400" />
-            </div>
+            {/* <div className="flex items-center gap-2">
+              <AddToPlaylistButton songId={song.songId} songTitle={song.title} />
+              <button
+                onClick={() => handlePlay(song)}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-purple-500/20"
+              >
+                <Play className="w-5 h-5 text-purple-400" />
+              </button>
+            </div> */}
           </div>
         ))}
       </div>

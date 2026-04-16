@@ -23,6 +23,8 @@ const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'));
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 const FavoriteGroupsPage = lazy(() => import('./pages/FavoriteGroupsPage'));
+const PlaylistsPage = lazy(() => import('./pages/PlaylistsPage'));
+const PlaylistDetailPage = lazy(() => import('./pages/PlaylistDetailPage'));
 
 function App() {
   return (
@@ -40,14 +42,16 @@ function App() {
             <Route path="/groups" element={<GroupsPage />} />
             <Route path="/groups/:id" element={<GroupDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/favorite-groups" element={<FavoriteGroupsPage />} />
 
             {/* Rutas protegidas */}
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/groups/create" element={<CreateGroupPage />} />
               <Route path="/groups/:id/edit" element={<EditGroupPage />} />
+              <Route path="/playlists" element={<PlaylistsPage />} />
+              <Route path="/playlists/:id" element={<PlaylistDetailPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/favorite-groups" element={<FavoriteGroupsPage />} />
             </Route>
 
             {/* Rutas de administración */}

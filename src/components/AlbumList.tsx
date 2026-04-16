@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
 import { useAudioPlayer } from '@/context/AudioPlayerContext';
+import { AddToPlaylistButton } from './AddToPlaylistButton';
 
 interface AlbumListProps {
   albums: Album[];
@@ -169,6 +170,9 @@ export const AlbumList: React.FC<AlbumListProps> = ({
 
   const handlePlaySong = (song: Song) => {
     // Crear playlist con las canciones del álbum actual
+    console.log('🎵 handlePlaySong llamado:', song);
+    console.log('Título:', song.title);
+    console.log('URL:', song.fileUrl);
     const playlist = albums.find((a) => a.id === song.albumId)?.songs || [];
     const enrichedSong = {
       ...song,
@@ -176,6 +180,7 @@ export const AlbumList: React.FC<AlbumListProps> = ({
       groupName: entityType === 'group' ? entityName : undefined,
       coverImage: entityImage,
     };
+    console.log('Enriched song:', enrichedSong);
     playSong(enrichedSong, playlist);
   };
 
@@ -328,10 +333,10 @@ export const AlbumList: React.FC<AlbumListProps> = ({
                   {album.songs.map((song) => (
                     <div
                       key={song.id}
-                      onClick={() => handlePlaySong(song)}
-                      className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors group"
+                      className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors group"
                     >
-                      <div className="flex-1">
+                      {/* Contenido clickeable para reproducir */}
+                      <div onClick={() => handlePlaySong(song)} className="flex-1 cursor-pointer">
                         <p className="text-white font-medium">{song.title}</p>
                         <p className="text-xs text-gray-400">
                           {Math.floor(song.duration / 60)}:
@@ -339,8 +344,16 @@ export const AlbumList: React.FC<AlbumListProps> = ({
                           reproducciones
                         </p>
                       </div>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <PlayCircleIcon className="w-5 h-5 text-purple-400" />
+
+                      {/* Botones de acción */}
+                      <div className="flex items-center gap-2">
+                        <AddToPlaylistButton songId={song.id} songTitle={song.title} />
+                        <button
+                          onClick={() => handlePlaySong(song)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-purple-500/20"
+                        >
+                          <PlayCircleIcon className="w-5 h-5 text-purple-400" />
+                        </button>
                       </div>
                     </div>
                   ))}
