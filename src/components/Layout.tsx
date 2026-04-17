@@ -16,6 +16,7 @@ import {
   ListMusic,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { NotificationBell } from './NotificationBell';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -83,6 +84,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <Music className="w-4 h-4" />
                   Grupos
                 </Link>
+
                 <Link
                   to="/playlists"
                   className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
@@ -129,6 +131,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       )}
                       <span>{user?.name}</span>
                     </Link>
+                    <div className="flex items-center gap-3">
+                      <NotificationBell />
+                    </div>
                     <Button onClick={handleLogout} variant="outline" size="sm">
                       <LogOut className="w-4 h-4 mr-1" />
                       Salir
