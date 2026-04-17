@@ -2,6 +2,7 @@
 
 Plataforma social para músicos. Conecta, crea y comparte música.
 
+[![Taiga](https://img.shields.io/badge/Taiga-Project-2E86AB?style=flat-square&logo=taiga&logoColor=white)](https://tree.taiga.io/project/ronniedetal-my-band-lab)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![React](https://img.shields.io/badge/React-18.x-61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6)
