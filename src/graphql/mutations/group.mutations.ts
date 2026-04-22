@@ -7,13 +7,24 @@ export const CREATE_MUSIC_GROUP = gql`
     $description: String
     $genre: MusicGenre!
     $founderId: ID!
+    $country: String
+    $city: String
   ) {
-    createMusicGroup(name: $name, description: $description, genre: $genre, founderId: $founderId) {
+    createMusicGroup(
+      name: $name
+      description: $description
+      genre: $genre
+      founderId: $founderId
+      country: $country
+      city: $city
+    ) {
       id
       name
       description
       genre
       verified
+      country
+      city
       founder {
         id
         name

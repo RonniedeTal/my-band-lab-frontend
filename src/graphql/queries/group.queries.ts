@@ -36,14 +36,30 @@ export const GET_GROUPS_PAGINATED = gql`
 
 // Buscar grupos por nombre
 export const SEARCH_GROUPS = gql`
-  query SearchGroups($query: String!, $page: Int, $size: Int) {
-    searchGroups(query: $query, page: $page, size: $size) {
+  query SearchGroups(
+    $query: String!
+    $page: Int
+    $size: Int
+    $country: String
+    $city: String
+    $genre: MusicGenre
+  ) {
+    searchGroups(
+      query: $query
+      page: $page
+      size: $size
+      country: $country
+      city: $city
+      genre: $genre
+    ) {
       content {
         id
         name
         description
         genre
         verified
+        country
+        city
         logoUrl
         founder {
           id
@@ -76,6 +92,8 @@ export const GET_GROUP_BY_ID = gql`
       description
       genre
       verified
+      country
+      city
       logoUrl
       founder {
         id

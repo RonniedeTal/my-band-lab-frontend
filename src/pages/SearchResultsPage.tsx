@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+// src/pages/SearchResultsPage.tsx
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { SEARCH_ARTISTS } from '../graphql/queries/artist.queries';
 import { SEARCH_GROUPS } from '../graphql/queries/group.queries';
@@ -7,22 +8,31 @@ import { ArtistCard } from '../components/ArtistCard';
 import { GroupCard } from '../components/GroupCard';
 import { Button } from '../components/ui/Button';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
-import { Search, Users, Music, AlertCircle } from 'lucide-react';
+import { Search, Users, Music, AlertCircle, X } from 'lucide-react';
 import type { Artist } from '../types/artist.types';
 import type { MusicGroup } from '../types/group.types';
 
 type TabType = 'artists' | 'groups';
 
 export const SearchResultsPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Leer filtros de la URL
   const query = searchParams.get('q') || '';
+  const country = searchParams.get('country') || '';
+  const city = searchParams.get('city') || '';
+  const genre = searchParams.get('genre') || '';
+
   const [activeTab, setActiveTab] = useState<TabType>('artists');
-  // No usar useEffect, usar el page directamente desde el estado con key que fuerza reset
   const [artistPage, setArtistPage] = useState(0);
   const [groupPage, setGroupPage] = useState(0);
 
-  // Usar key para resetear páginas cuando cambia la query
-  // const searchKey = query; // Cuando query cambia, se reinician los componentes
+  // Resetear páginas cuando cambian los filtros
+  useEffect(() => {
+    setArtistPage(0);
+    setGroupPage(0);
+  }, [query, country, city, genre]);
 
   // Búsqueda de artistas
   const {
@@ -30,8 +40,15 @@ export const SearchResultsPage: React.FC = () => {
     loading: loadingArtists,
     error: artistsError,
   } = useQuery(SEARCH_ARTISTS, {
-    variables: { query, page: artistPage, size: 9 },
-    skip: !query || activeTab !== 'artists',
+    variables: {
+      query: query || '*',
+      page: artistPage,
+      size: 9,
+      country: country || null,
+      city: city || null,
+      genre: genre || null,
+    },
+    skip: (!query && !country && !city && !genre) || activeTab !== 'artists',
   });
 
   // Búsqueda de grupos
@@ -40,8 +57,15 @@ export const SearchResultsPage: React.FC = () => {
     loading: loadingGroups,
     error: groupsError,
   } = useQuery(SEARCH_GROUPS, {
-    variables: { query, page: groupPage, size: 9 },
-    skip: !query || activeTab !== 'groups',
+    variables: {
+      query: query || '*',
+      page: groupPage,
+      size: 9,
+      country: country || null,
+      city: city || null,
+      genre: genre || null,
+    },
+    skip: (!query && !country && !city && !genre) || activeTab !== 'groups',
   });
 
   const artists = artistsData?.searchArtists?.content || [];
@@ -56,15 +80,59 @@ export const SearchResultsPage: React.FC = () => {
   const groupHasNext = groupsData?.searchGroups?.hasNext || false;
   const groupHasPrevious = groupsData?.searchGroups?.hasPrevious || false;
 
+  // Función para actualizar filtros en URL
+  const updateFilters = (newFilters: { country?: string; city?: string; genre?: string }) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (newFilters.country !== undefined) {
+      if (newFilters.country) {
+        params.set('country', newFilters.country);
+      } else {
+        params.delete('country');
+      }
+    }
+
+    if (newFilters.city !== undefined) {
+      if (newFilters.city) {
+        params.set('city', newFilters.city);
+      } else {
+        params.delete('city');
+      }
+    }
+
+    if (newFilters.genre !== undefined) {
+      if (newFilters.genre) {
+        params.set('genre', newFilters.genre);
+      } else {
+        params.delete('genre');
+      }
+    }
+
+    // Mantener la query de búsqueda si existe
+    if (query) {
+      params.set('q', query);
+    }
+
+    setSearchParams(params);
+  };
+
+  // Función para eliminar un filtro específico
+  const removeFilter = (filterName: 'country' | 'city' | 'genre') => {
+    updateFilters({ [filterName]: '' });
+  };
+
+  // Función para limpiar todos los filtros
+  const clearAllFilters = () => {
+    const params = new URLSearchParams();
+    if (query) {
+      params.set('q', query);
+    }
+    setSearchParams(params);
+  };
+
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
   };
-
-  // Resetear páginas cuando cambia la query (usando efecto controlado)
-  React.useEffect(() => {
-    setArtistPage(0);
-    setGroupPage(0);
-  }, [query]);
 
   const handleArtistNextPage = () => {
     setArtistPage(artistPage + 1);
@@ -86,8 +154,8 @@ export const SearchResultsPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Si no hay query, mostrar mensaje
-  if (!query) {
+  // Si no hay query ni filtros, mostrar mensaje
+  if (!query && !country && !city && !genre) {
     return (
       <div className="min-h-screen bg-dark-bg">
         <div className="container mx-auto px-4 py-12">
@@ -95,7 +163,7 @@ export const SearchResultsPage: React.FC = () => {
             <Search className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-white mb-2">Buscar en MyBandLab</h1>
             <p className="text-gray-400">
-              Ingresa un término de búsqueda para encontrar artistas o grupos
+              Ingresa un término de búsqueda o usa los filtros para encontrar artistas o grupos
             </p>
           </div>
         </div>
@@ -112,9 +180,64 @@ export const SearchResultsPage: React.FC = () => {
             Resultados de búsqueda
           </h1>
           <p className="text-gray-400 mt-2">
-            Mostrando resultados para: <span className="text-white font-semibold">"{query}"</span>
+            {query ? (
+              <>
+                Mostrando resultados para:{' '}
+                <span className="text-white font-semibold">"{query}"</span>
+              </>
+            ) : (
+              <>Mostrando resultados filtrados</>
+            )}
           </p>
         </div>
+
+        {/* Filtros activos - Badges */}
+        {(country || city || genre) && (
+          <div className="mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-gray-400">Filtros activos:</span>
+              {country && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                  <span>🌍 {country}</span>
+                  <button
+                    onClick={() => removeFilter('country')}
+                    className="ml-1 hover:text-purple-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+              {city && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                  <span>🏙️ {city}</span>
+                  <button
+                    onClick={() => removeFilter('city')}
+                    className="ml-1 hover:text-purple-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+              {genre && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                  <span>🎵 {genre}</span>
+                  <button
+                    onClick={() => removeFilter('genre')}
+                    className="ml-1 hover:text-purple-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+              <button
+                onClick={clearAllFilters}
+                className="text-sm text-gray-400 hover:text-white transition-colors ml-2"
+              >
+                Limpiar todos
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-4 border-b border-gray-700 mb-6">
@@ -175,7 +298,7 @@ export const SearchResultsPage: React.FC = () => {
                       <Search className="w-12 h-12 text-gray-500 mx-auto mb-3" />
                       <p className="text-gray-400 text-lg mb-2">No se encontraron artistas</p>
                       <p className="text-gray-500 text-sm">
-                        Intenta con otros términos de búsqueda
+                        Intenta con otros términos de búsqueda o filtros
                       </p>
                     </div>
                   </div>
@@ -247,7 +370,7 @@ export const SearchResultsPage: React.FC = () => {
                       <Search className="w-12 h-12 text-gray-500 mx-auto mb-3" />
                       <p className="text-gray-400 text-lg mb-2">No se encontraron grupos</p>
                       <p className="text-gray-500 text-sm">
-                        Intenta con otros términos de búsqueda
+                        Intenta con otros términos de búsqueda o filtros
                       </p>
                     </div>
                   </div>

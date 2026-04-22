@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SongStats } from '../types/song.types';
 import { Play, TrendingUp, Users } from 'lucide-react';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
+import { ShareButtons } from './ShareButtons';
 
 interface TopSongsProps {
   songs: SongStats[];
@@ -20,6 +21,7 @@ export const TopSongs: React.FC<TopSongsProps> = ({
   onPlaySong,
 }) => {
   const { playSong } = useAudioPlayer();
+  const [showShareForSong, setShowShareForSong] = useState<number | null>(null);
 
   const handlePlay = (song: SongStats) => {
     if (onPlaySong) {
@@ -105,6 +107,13 @@ export const TopSongs: React.FC<TopSongsProps> = ({
                 <Play className="w-5 h-5 text-purple-400" />
               </button>
             </div> */}
+            {/* <ShareButtons
+              title={song.title}
+              description={`${entityName || 'Artista'} - ${song.title} en MyBandLab`}
+              url={`/song/${song.songId}`}
+              imageUrl={undefined}
+              className="w-full"
+            /> */}
           </div>
         ))}
       </div>

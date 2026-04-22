@@ -42,14 +42,30 @@ export const GET_ARTISTS_PAGINATED = gql`
 
 // Query para búsqueda de artistas
 export const SEARCH_ARTISTS = gql`
-  query SearchArtists($query: String!, $page: Int, $size: Int) {
-    searchArtists(query: $query, page: $page, size: $size) {
+  query SearchArtists(
+    $query: String!
+    $page: Int
+    $size: Int
+    $country: String
+    $city: String
+    $genre: MusicGenre
+  ) {
+    searchArtists(
+      query: $query
+      page: $page
+      size: $size
+      country: $country
+      city: $city
+      genre: $genre
+    ) {
       content {
         id
         stageName
         biography
         genre
         verified
+        country
+        city
         logoUrl
         profileImageUrl
         user {
@@ -81,6 +97,8 @@ export const GET_ARTIST_BY_ID = gql`
       biography
       genre
       verified
+      country
+      city
       logoUrl
       profileImageUrl
       user {
