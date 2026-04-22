@@ -7,6 +7,8 @@ import { GET_INSTRUMENTS } from '../graphql/queries/instrument.queries';
 import { Button } from './ui/Button';
 import { MusicGenre } from '../types/enums';
 import { useNotification } from '../context/NotificationContext';
+import { useCountries } from '../hooks/useCountries';
+import { useCities } from '../hooks/useCities';
 
 interface CreateArtistFormProps {
   onSuccess?: () => void;
@@ -38,9 +40,13 @@ export const CreateArtistForm: React.FC<CreateArtistFormProps> = ({ onSuccess })
     genre: 'ROCK' as MusicGenre,
     instrumentIds: [] as number[],
     mainInstrumentId: null as number | null,
+    country: '',
+    city: '',
   });
 
   const { data: instrumentsData, loading: loadingInstruments } = useQuery(GET_INSTRUMENTS);
+  const { countries, loading: loadingCountries } = useCountries();
+  const { cities, loading: loadingCities } = useCities(formData.country);
 
   const [createArtist, { loading }] = useMutation(CREATE_ARTIST_FOR_CURRENT_USER, {
     refetchQueries: [{ query: GET_ARTISTS_PAGINATED }],
@@ -94,6 +100,8 @@ export const CreateArtistForm: React.FC<CreateArtistFormProps> = ({ onSuccess })
           genre: formData.genre,
           instrumentIds: formData.instrumentIds,
           mainInstrumentId: formData.mainInstrumentId,
+          country: formData.country,
+          city: formData.city,
         },
       });
     } catch {
@@ -124,6 +132,9 @@ export const CreateArtistForm: React.FC<CreateArtistFormProps> = ({ onSuccess })
         mainInstrumentId: newMainInstrument,
       };
     });
+  };
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({ ...formData, country: e.target.value, city: '' });
   };
 
   const genres = [
@@ -175,6 +186,49 @@ export const CreateArtistForm: React.FC<CreateArtistFormProps> = ({ onSuccess })
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">País de origen</label>
+          <select
+            value={formData.country}
+            onChange={handleCountryChange}
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white"
+          >
+            <option value="">Selecciona un país</option>
+            {loadingCountries ? (
+              <option disabled>Cargando países...</option>
+            ) : (
+              countries.map((country) => (
+                <option key={country.code} value={country.name}>
+                  {country.name}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Ciudad</label>
+          <select
+            value={formData.city}
+            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            disabled={!formData.country}
+            className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white disabled:opacity-50"
+          >
+            <option value="">Selecciona una ciudad</option>
+            {loadingCities ? (
+              <option disabled>Cargando ciudades...</option>
+            ) : (
+              cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))
+            )}
+          </select>
+        </div>
       </div>
 
       <div>

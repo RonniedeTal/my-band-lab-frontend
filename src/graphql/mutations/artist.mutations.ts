@@ -7,6 +7,8 @@ export const CREATE_ARTIST = gql`
     $genre: MusicGenre!
     $instrumentIds: [Int!]!
     $mainInstrumentId: Int
+    $country: String
+    $city: String
   ) {
     createArtist(
       stageName: $stageName
@@ -14,12 +16,16 @@ export const CREATE_ARTIST = gql`
       genre: $genre
       instrumentIds: $instrumentIds
       mainInstrumentId: $mainInstrumentId
+      country: $country
+      city: $city
     ) {
       id
       stageName
       biography
       genre
       verified
+      country
+      city
       user {
         id
         name
@@ -55,6 +61,8 @@ export const CREATE_ARTIST_FOR_CURRENT_USER = gql`
     $genre: MusicGenre!
     $instrumentIds: [ID!]!
     $mainInstrumentId: ID
+    $country: String
+    $city: String
   ) {
     createArtistForCurrentUser(
       stageName: $stageName
@@ -62,12 +70,16 @@ export const CREATE_ARTIST_FOR_CURRENT_USER = gql`
       genre: $genre
       instrumentIds: $instrumentIds
       mainInstrumentId: $mainInstrumentId
+      country: $country
+      city: $city
     ) {
       id
       stageName
       biography
       genre
       verified
+      country
+      city
       instruments {
         id
         name

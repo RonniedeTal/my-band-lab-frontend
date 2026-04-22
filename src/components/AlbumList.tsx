@@ -14,6 +14,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationContext';
 import { useAudioPlayer } from '@/context/AudioPlayerContext';
 import { AddToPlaylistButton } from './AddToPlaylistButton';
+import { ShareSongButton } from './ShareSongButton';
 
 interface AlbumListProps {
   albums: Album[];
@@ -347,12 +348,19 @@ export const AlbumList: React.FC<AlbumListProps> = ({
 
                       {/* Botones de acción */}
                       <div className="flex items-center gap-2">
+                        <ShareSongButton
+                          songId={song.id}
+                          songTitle={song.title}
+                          artistName={entityType === 'artist' ? entityName : undefined}
+                          groupName={entityType === 'group' ? entityName : undefined}
+                        />
                         <AddToPlaylistButton songId={song.id} songTitle={song.title} />
+
                         <button
                           onClick={() => handlePlaySong(song)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-purple-500/20"
                         >
-                          <PlayCircleIcon className="w-5 h-5 text-purple-400" />
+                          {/* <PlayCircleIcon className="w-5 h-5 text-purple-400" /> */}
                         </button>
                       </div>
                     </div>
