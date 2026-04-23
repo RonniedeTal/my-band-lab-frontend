@@ -5,6 +5,7 @@ import { Heart, UserPlus, UserCheck } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useFollowArtist } from '../hooks/useFollowArtist';
 import { useFavoriteArtist } from '../hooks/useFavoriteArtist';
+import { LookingForBandBadge } from './LookingForBandBadge';
 
 interface ArtistCardProps {
   artist: Artist;
@@ -36,9 +37,12 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
               </div>
             )}
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
-                {artist.stageName}
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
+                  {artist.stageName}
+                </h3>
+                {artist.isLookingForBand && <LookingForBandBadge size="sm" />}
+              </div>
               <p className="text-sm text-gray-400">
                 {artist.user?.name} {artist.user?.surname}
               </p>

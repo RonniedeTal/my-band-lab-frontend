@@ -17,6 +17,7 @@ export interface Artist {
   profileImageUrl?: string;
   logoUrl?: string;
   songs?: Song[];
+  isLookingForBand?: boolean;
 }
 
 export interface CreateArtistData {
