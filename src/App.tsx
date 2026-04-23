@@ -25,6 +25,7 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
 const FavoriteGroupsPage = lazy(() => import('./pages/FavoriteGroupsPage'));
 const PlaylistsPage = lazy(() => import('./pages/PlaylistsPage'));
 const PlaylistDetailPage = lazy(() => import('./pages/PlaylistDetailPage'));
+const FindBandMembersPage = lazy(() => import('./pages/FindBandMembersPage'));
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
             <Route path="/groups" element={<GroupsPage />} />
             <Route path="/groups/:id" element={<GroupDetailPage />} />
             <Route path="/search" element={<SearchResultsPage />} />
+            <Route path="/find-band" element={<FindBandMembersPage />} />
 
             {/* Rutas protegidas */}
             <Route element={<ProtectedRoute />}>

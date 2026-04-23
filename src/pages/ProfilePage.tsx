@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useQuery } from '@apollo/client';
 import { GET_USER_ARTIST } from '../graphql/queries/user.queries';
@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 import { User, Edit, Music, Mail, Calendar, CheckCircle, XCircle } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { UserPlaylists } from '../components/UserPlaylists';
+import { LookingForBandToggle } from '../components/LookingForBandToggle';
+import { LookingForBandBadge } from '@/components/LookingForBandBadge';
 
 export const ProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -17,6 +19,7 @@ export const ProfilePage: React.FC = () => {
   const { data, loading, refetch } = useQuery(GET_USER_ARTIST, {
     variables: { userId: user?.id },
     skip: !user?.id,
+    fetchPolicy: 'network-only',
   });
 
   if (!user) {
@@ -33,6 +36,13 @@ export const ProfilePage: React.FC = () => {
   }
 
   const hasArtist = data?.artistByUserId;
+
+  // Función para actualizar después del toggle
+  const handleToggleChange = () => {
+    console.log('Toggle cambió, refrescando datos del artista...');
+    // Refrescar los datos del artista para obtener el nuevo estado
+    refetch();
+  };
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -142,6 +152,7 @@ export const ProfilePage: React.FC = () => {
                       <p className="text-green-400 flex items-center gap-2">
                         <CheckCircle className="w-4 h-4" />✓ Ya tienes un perfil de artista
                       </p>
+                      {hasArtist.isLookingForBand && <LookingForBandBadge size="sm" />}
                     </div>
                     <div className="space-y-2">
                       <p>
@@ -161,6 +172,11 @@ export const ProfilePage: React.FC = () => {
                         </Button>
                       </Link>
                     </div>
+                    {/* ✅ Toggle correctamente ubicado - SOLO cuando hay artista */}
+                    <LookingForBandToggle
+                      value={hasArtist.isLookingForBand === true}
+                      onChange={handleToggleChange}
+                    />
                   </div>
                 ) : (
                   <div>

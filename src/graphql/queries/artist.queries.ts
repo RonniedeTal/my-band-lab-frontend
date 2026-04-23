@@ -27,6 +27,7 @@ export const GET_ARTISTS_PAGINATED = gql`
           id
           name
         }
+        isLookingForBand
         createdAt
         updatedAt
       }
@@ -168,6 +169,23 @@ export const GET_ARTISTS_BY_GENRE = gql`
         name
       }
       mainInstrument {
+        id
+        name
+      }
+    }
+  }
+`;
+export const SEARCH_ARTISTS_LOOKING_FOR_BAND = gql`
+  query SearchArtistsLookingForBand {
+    artistsLookingForBand {
+      id
+      stageName
+      genre
+      city
+      country
+      isLookingForBand
+      profileImageUrl
+      instruments {
         id
         name
       }

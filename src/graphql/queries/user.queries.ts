@@ -20,6 +20,7 @@ export const GET_USER_ARTIST = gql`
       biography
       genre
       verified
+      isLookingForBand
       instruments {
         id
         name

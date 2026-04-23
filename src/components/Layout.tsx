@@ -14,6 +14,7 @@ import {
   Shield,
   Heart,
   ListMusic,
+  UserPlus,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { NotificationBell } from './NotificationBell';
@@ -91,6 +92,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <ListMusic className="w-4 h-4" />
                   Playlists
+                </Link>
+
+                <Link
+                  to="/find-band"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Encontrar Banda
                 </Link>
 
                 {isAuthenticated() ? (

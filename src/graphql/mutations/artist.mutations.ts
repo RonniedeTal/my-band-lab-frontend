@@ -97,3 +97,14 @@ export const CREATE_ARTIST_FOR_CURRENT_USER = gql`
     }
   }
 `;
+
+export const UPDATE_ARTIST_LOOKING_FOR_BAND = gql`
+  mutation UpdateArtistLookingForBand($artistId: ID!, $isLookingForBand: Boolean!) {
+    updateArtistLookingForBand(artistId: $artistId, isLookingForBand: $isLookingForBand) {
+      id
+      isLookingForBand
+      stageName
+      genre
+    }
+  }
+`;
