@@ -21,6 +21,11 @@ export const GET_USER_ARTIST = gql`
       genre
       verified
       isLookingForBand
+      lookingForInstruments {
+        id
+        name
+        category
+      }
       instruments {
         id
         name

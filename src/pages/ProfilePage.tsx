@@ -6,21 +6,42 @@ import { CreateArtistForm } from '../components/CreateArtistForm';
 import { EditProfileForm } from '../components/EditProfileForm';
 import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
-import { User, Edit, Music, Mail, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { User, Edit, Music, Mail, Calendar, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { UserPlaylists } from '../components/UserPlaylists';
 import { LookingForBandToggle } from '../components/LookingForBandToggle';
 import { LookingForBandBadge } from '@/components/LookingForBandBadge';
+import { InstrumentMultiSelect } from '../components/InstrumentMultiSelect';
+import { Instrument } from '@/types';
+import { useInstruments } from '../hooks/useInstruments';
 
 export const ProfilePage: React.FC = () => {
   const { user } = useAuth();
+  const { instruments, loading: instrumentsLoading } = useInstruments();
   const [isEditing, setIsEditing] = useState(false);
+  const [showInstrumentSelector, setShowInstrumentSelector] = useState(false);
+  const [selectedInstruments, setSelectedInstruments] = useState<number[]>([]);
+  // const [instruments, setInstruments] = useState<Instrument[]>([]);
 
   const { data, loading, refetch } = useQuery(GET_USER_ARTIST, {
     variables: { userId: user?.id },
     skip: !user?.id,
     fetchPolicy: 'network-only',
+    onCompleted: (data) => {
+      console.log('Datos recibidos:', data);
+      console.log('Artist:', data?.artistByUserId);
+    },
+    onError: (error) => {
+      console.error('Error en query:', error);
+    },
   });
+
+  // useEffect(() => {
+  //   fetch('/api/instruments')
+  //     .then((res) => res.json())
+  //     .then(setInstruments)
+  //     .catch(console.error);
+  // }, []);
 
   if (!user) {
     return (
@@ -43,6 +64,18 @@ export const ProfilePage: React.FC = () => {
     // Refrescar los datos del artista para obtener el nuevo estado
     refetch();
   };
+  useEffect(() => {
+    console.log('hasArtist:', hasArtist);
+    console.log('lookingForInstruments:', hasArtist?.lookingForInstruments);
+
+    if (hasArtist?.lookingForInstruments && hasArtist.lookingForInstruments.length > 0) {
+      const ids = hasArtist.lookingForInstruments.map((inst: { id: number }) => inst.id);
+      setSelectedInstruments(ids);
+      console.log('IDs cargados:', ids);
+    } else {
+      setSelectedInstruments([]);
+    }
+  }, [hasArtist]);
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -52,14 +85,13 @@ export const ProfilePage: React.FC = () => {
             Mi Perfil
           </h1>
 
-          {/* Modo Edición */}
           {isEditing ? (
             <div className="bg-gray-800/30 rounded-xl p-6">
               <h2 className="text-xl font-semibold text-white mb-4">Editar Perfil</h2>
               <EditProfileForm
                 onSuccess={() => {
                   setIsEditing(false);
-                  window.location.reload(); // Recargar para actualizar el contexto
+                  window.location.reload();
                 }}
                 onCancel={() => setIsEditing(false)}
               />
@@ -89,10 +121,8 @@ export const ProfilePage: React.FC = () => {
                     <ImageUploader
                       currentImageUrl={user.profileImageUrl}
                       onImageUploaded={(newImageUrl) => {
-                        // Actualizar el usuario en localStorage
                         const updatedUser = { ...user, profileImageUrl: newImageUrl };
                         localStorage.setItem('user', JSON.stringify(updatedUser));
-                        // Recargar para reflejar cambios
                         window.location.reload();
                       }}
                       onError={(errorMsg) => {
@@ -172,11 +202,67 @@ export const ProfilePage: React.FC = () => {
                         </Button>
                       </Link>
                     </div>
-                    {/* ✅ Toggle correctamente ubicado - SOLO cuando hay artista */}
+
                     <LookingForBandToggle
                       value={hasArtist.isLookingForBand === true}
                       onChange={handleToggleChange}
                     />
+
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-white font-medium flex items-center gap-2">
+                          <Music className="w-4 h-4" />
+                          Instrumentos que puedo tocar
+                        </h4>
+                        <button
+                          onClick={() => setShowInstrumentSelector(!showInstrumentSelector)}
+                          className="text-sm text-purple-400 hover:text-purple-300"
+                        >
+                          {showInstrumentSelector
+                            ? 'Cancelar'
+                            : selectedInstruments.length > 0
+                              ? 'Editar'
+                              : 'Agregar'}
+                        </button>
+                      </div>
+
+                      {showInstrumentSelector ? (
+                        <InstrumentMultiSelect
+                          selectedInstrumentIds={selectedInstruments}
+                          onSave={(ids) => {
+                            setSelectedInstruments(ids);
+                            setShowInstrumentSelector(false);
+                            refetch();
+                          }}
+                          onCancel={() => setShowInstrumentSelector(false)}
+                        />
+                      ) : instrumentsLoading ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="w-5 h-5 animate-spin text-purple-500" />
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedInstruments.length > 0 ? (
+                            selectedInstruments.map((id) => {
+                              const instrument = instruments.find((i: Instrument) => i.id === id);
+                              return instrument ? (
+                                <span
+                                  key={id}
+                                  className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm"
+                                >
+                                  {instrument.name}
+                                </span>
+                              ) : null;
+                            })
+                          ) : (
+                            <p className="text-gray-500 text-sm">
+                              No has seleccionado ningún instrumento. Haz clic en "Agregar" para
+                              indicar qué instrumentos puedes tocar.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div>

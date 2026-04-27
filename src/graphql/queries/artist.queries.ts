@@ -185,6 +185,11 @@ export const SEARCH_ARTISTS_LOOKING_FOR_BAND = gql`
       country
       isLookingForBand
       profileImageUrl
+      lookingForInstruments {
+        id
+        name
+        category
+      }
       instruments {
         id
         name

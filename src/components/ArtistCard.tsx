@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Artist } from '../types';
 import { Link } from 'react-router-dom';
 import { Heart, UserPlus, UserCheck } from 'lucide-react';
@@ -15,6 +15,11 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
   const { user } = useAuth();
   const { isFollowing, toggleFollow } = useFollowArtist(artist.id as number);
   const { isFavorite, toggleFavorite } = useFavoriteArtist(artist.id as number);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const instruments = artist.lookingForInstruments || artist.instruments || [];
+  const visibleInstruments = instruments.slice(0, 3);
+  const remainingCount = instruments.length - 3;
 
   return (
     <div className="block group">
@@ -64,20 +69,45 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
             {artist.biography || 'Sin biografía disponible'}
           </p>
 
-          {artist.instruments && artist.instruments.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {artist.instruments.slice(0, 3).map((instrument) => (
-                <span
-                  key={instrument.id}
-                  className="text-xs px-2 py-1 bg-gray-700/50 rounded-full text-gray-300"
-                >
-                  {instrument.name}
-                </span>
-              ))}
-              {artist.instruments.length > 3 && (
-                <span className="text-xs px-2 py-1 bg-gray-700/50 rounded-full text-gray-300">
-                  +{artist.instruments.length - 3}
-                </span>
+          {/* ✅ INSTRUMENTOS CON LIMITACIÓN Y TOOLTIP */}
+          {instruments.length > 0 && (
+            <div
+              className="relative mt-2"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <div className="flex flex-wrap gap-1">
+                {visibleInstruments.map((instrument) => (
+                  <span
+                    key={instrument.id}
+                    className="text-xs px-2 py-1 bg-gray-700/50 rounded-full text-gray-300"
+                  >
+                    {instrument.name}
+                  </span>
+                ))}
+                {remainingCount > 0 && (
+                  <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full cursor-help">
+                    +{remainingCount} más
+                  </span>
+                )}
+              </div>
+
+              {/* Tooltip con lista completa */}
+              {showTooltip && remainingCount > 0 && (
+                <div className="absolute bottom-full left-0 mb-2 z-10 bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[150px]">
+                  <p className="text-xs text-gray-400 mb-1">Instrumentos:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {instruments.map((instrument) => (
+                      <span
+                        key={instrument.id}
+                        className="text-xs px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded"
+                      >
+                        {instrument.name}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="absolute top-full left-4 -mt-1 w-2 h-2 bg-gray-900 border-r border-b border-gray-700 rotate-45"></div>
+                </div>
               )}
             </div>
           )}
