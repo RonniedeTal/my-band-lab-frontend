@@ -18,6 +18,7 @@ export interface Artist {
   logoUrl?: string;
   songs?: Song[];
   isLookingForBand?: boolean;
+  lookingForInstruments?: Instrument[];
 }
 
 export interface CreateArtistData {

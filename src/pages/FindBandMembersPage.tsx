@@ -1,94 +1,63 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@apollo/client';
+import { SEARCH_ARTISTS_LOOKING_FOR_BAND } from '../graphql/queries/artist.queries';
+import { GET_USER_ARTIST } from '../graphql/queries/user.queries';
 import { Music, MapPin, Users, Loader2 } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 import { LookingForBandBadge } from '../components/LookingForBandBadge';
+import { useAuth } from '../hooks/useAuth';
 
-// Actualiza la interfaz Artist para reflejar los tipos reales del backend
+interface Instrument {
+  id: string;
+  name: string;
+  category?: string;
+}
+
 interface Artist {
-  id: number;
+  id: string;
   stageName: string;
-  genre: string | { name: string; id?: number };
-  city: string | null;
-  country: string | null;
-  instruments: Array<{ id: number; name: string }>;
-  lookingForBand: boolean;
-  profileImageUrl?: string | null;
-  verified?: boolean;
+  genre: string;
+  city: string;
+  country: string;
+  isLookingForBand: boolean;
+  profileImageUrl?: string;
+  lookingForInstruments?: Instrument[];
+  instruments?: Instrument[];
 }
 
 export const FindBandMembersPage: React.FC = () => {
-  const { token } = useAuth();
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    fetchAllArtists();
-  }, []);
+  // Query para obtener el artista del usuario actual (para obtener su artistId)
+  const {
+    data: userArtistData,
+    loading: userArtistLoading,
+    error: userArtistError,
+  } = useQuery(GET_USER_ARTIST, {
+    variables: { userId: user?.id },
+    skip: !user?.id,
+    fetchPolicy: 'network-only',
+  });
 
-  const getGenreName = (genre: string | { name: string } | undefined): string => {
-    if (!genre) return 'No especificado';
-    if (typeof genre === 'string') return genre;
-    if (typeof genre === 'object' && genre.name) return genre.name;
-    return 'No especificado';
-  };
+  // Query para obtener todos los artistas que buscan banda
+  const {
+    data: artistsData,
+    loading: artistsLoading,
+    error: artistsError,
+  } = useQuery(SEARCH_ARTISTS_LOOKING_FOR_BAND, {
+    fetchPolicy: 'network-only',
+  });
 
-  const getInstrumentName = (instrument: any): string => {
-    if (!instrument) return 'Instrumento';
-    if (typeof instrument === 'string') return instrument;
-    if (typeof instrument === 'object' && instrument.name) return instrument.name;
-    return 'Instrumento';
-  };
+  const [hoveredArtist, setHoveredArtist] = useState<string | null>(null);
 
-  const fetchAllArtists = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Obtener el artistId del usuario actual
+  const currentArtistId = userArtistData?.artistByUserId?.id;
 
-      const response = await fetch('/api/artists', {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json',
-        },
-      });
+  // Verificar si alguna query está cargando
+  const loading = userArtistLoading || artistsLoading;
 
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-
-      // Verificar el tipo de contenido
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Respuesta no JSON:', text.substring(0, 500));
-        throw new Error('El servidor no devolvió JSON válido');
-      }
-
-      const allArtists = await response.json();
-      console.log('Artistas recibidos:', allArtists);
-
-      // Verificar que allArtists es un array
-      if (!Array.isArray(allArtists)) {
-        console.error('La respuesta no es un array:', allArtists);
-        throw new Error('Formato de respuesta inválido');
-      }
-
-      // Filtrar los que buscan banda
-      const lookingForBand = allArtists.filter((artist: any) => {
-        const isLooking = artist.lookingForBand === true || artist.isLookingForBand === true;
-        return isLooking;
-      });
-
-      console.log(`Artistas buscando banda: ${lookingForBand.length}`);
-      setArtists(lookingForBand);
-    } catch (err: any) {
-      console.error('Error detallado:', err);
-      setError(err.message || 'Error al cargar artistas');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Verificar si hay algún error
+  const error = userArtistError || artistsError;
 
   if (loading) {
     return (
@@ -101,16 +70,71 @@ export const FindBandMembersPage: React.FC = () => {
   if (error) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-400">Error al cargar: {error}</p>
-        <button
-          onClick={fetchAllArtists}
-          className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-        >
-          Reintentar
-        </button>
+        <p className="text-red-400">Error al cargar: {error.message}</p>
       </div>
     );
   }
+
+  const allArtists = artistsData?.artistsLookingForBand || [];
+
+  // 👈 FILTRAR: Excluir al artista del usuario actual por artistId
+  const filteredArtists = allArtists.filter((artist: Artist) => {
+    // Si el usuario no tiene artista, mostrar todos
+    if (!currentArtistId) return true;
+    // Excluir al artista actual
+    return String(artist.id) !== String(currentArtistId);
+  });
+
+  // Función para renderizar instrumentos con límite
+  const renderInstruments = (artist: Artist, artistId: string) => {
+    const instruments = artist.lookingForInstruments || artist.instruments || [];
+    const visibleInstruments = instruments.slice(0, 3);
+    const remainingCount = instruments.length - 3;
+
+    if (instruments.length === 0) return null;
+
+    return (
+      <div
+        className="relative mt-3"
+        onMouseEnter={() => setHoveredArtist(artistId)}
+        onMouseLeave={() => setHoveredArtist(null)}
+      >
+        <div className="flex flex-wrap gap-2">
+          {visibleInstruments.map((instrument) => (
+            <span
+              key={instrument.id}
+              className="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full"
+            >
+              {instrument.name}
+            </span>
+          ))}
+          {remainingCount > 0 && (
+            <span className="bg-gray-700/50 text-gray-400 text-xs px-2 py-1 rounded-full cursor-help">
+              +{remainingCount} más
+            </span>
+          )}
+        </div>
+
+        {/* Tooltip con instrumentos completos */}
+        {hoveredArtist === artistId && remainingCount > 0 && (
+          <div className="absolute bottom-full left-0 mb-2 z-10 bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[180px]">
+            <p className="text-xs text-gray-400 mb-1">Instrumentos:</p>
+            <div className="flex flex-wrap gap-1">
+              {instruments.map((instrument) => (
+                <span
+                  key={instrument.id}
+                  className="text-xs px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded"
+                >
+                  {instrument.name}
+                </span>
+              ))}
+            </div>
+            <div className="absolute top-full left-4 -mt-1 w-2 h-2 bg-gray-900 border-r border-b border-gray-700 rotate-45"></div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -118,24 +142,26 @@ export const FindBandMembersPage: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent mb-4">
-              Músicos que Buscan Banda
+              Músicos que Buscan Proyecto
             </h1>
             <p className="text-gray-400 text-lg">
-              Conecta con artistas que están buscando formar o unirse a una banda
+              Conecta con artistas que están buscando formar o unirse a un proyecto musical
             </p>
           </div>
 
-          {artists.length === 0 ? (
+          {filteredArtists.length === 0 ? (
             <div className="text-center py-20 bg-gray-800/30 rounded-xl">
               <Users className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">No hay músicos buscando banda en este momento</p>
+              <p className="text-gray-400 text-lg">
+                No hay músicos buscando proyecto en este momento
+              </p>
               <p className="text-gray-500 text-sm mt-2">
                 ¡Vuelve más tarde o activa tu propio estado!
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {artists.map((artist) => (
+              {filteredArtists.map((artist: Artist) => (
                 <Link
                   key={artist.id}
                   to={`/artists/${artist.id}`}
@@ -158,7 +184,7 @@ export const FindBandMembersPage: React.FC = () => {
 
                   <h3 className="text-xl font-semibold text-white mb-2">{artist.stageName}</h3>
 
-                  <p className="text-gray-400 text-sm mb-3">Género: {getGenreName(artist.genre)}</p>
+                  <p className="text-gray-400 text-sm mb-3">Género: {artist.genre}</p>
 
                   {artist.city && (
                     <div className="flex items-center gap-2 text-gray-500 text-sm">
@@ -169,23 +195,7 @@ export const FindBandMembersPage: React.FC = () => {
                     </div>
                   )}
 
-                  {artist.instruments && artist.instruments.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {artist.instruments.slice(0, 3).map((instrument, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full"
-                        >
-                          {getInstrumentName(instrument)}
-                        </span>
-                      ))}
-                      {artist.instruments.length > 3 && (
-                        <span className="text-gray-500 text-xs">
-                          +{artist.instruments.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  {renderInstruments(artist, artist.id)}
                 </Link>
               ))}
             </div>

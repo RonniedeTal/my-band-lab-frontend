@@ -39,7 +39,7 @@ export const LookingForBandBadge: React.FC<LookingForBandBadgeProps> = ({
       `}
       >
         <Guitar className={`${iconSizes[size]} text-green-400`} />
-        <span className="text-green-400 font-medium">Busca proyecto</span>
+        <span className="text -green-400 font-medium">Busca proyecto</span>
       </div>
 
       {showTooltip && showTooltipText && (
