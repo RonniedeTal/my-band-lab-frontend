@@ -26,6 +26,7 @@ export const GET_USER_ARTIST = gql`
         name
         category
       }
+      lookingForGenres
       instruments {
         id
         name

@@ -19,6 +19,7 @@ export interface Artist {
   songs?: Song[];
   isLookingForBand?: boolean;
   lookingForInstruments?: Instrument[];
+  lookingForGenres?: string[];
 }
 
 export interface CreateArtistData {

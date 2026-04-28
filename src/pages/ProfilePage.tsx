@@ -14,6 +14,7 @@ import { LookingForBandBadge } from '@/components/LookingForBandBadge';
 import { InstrumentMultiSelect } from '../components/InstrumentMultiSelect';
 import { Instrument } from '@/types';
 import { useInstruments } from '../hooks/useInstruments';
+import { GenreMultiSelect } from '../components/GenreMultiSelect';
 
 export const ProfilePage: React.FC = () => {
   const { user } = useAuth();
@@ -22,6 +23,8 @@ export const ProfilePage: React.FC = () => {
   const [showInstrumentSelector, setShowInstrumentSelector] = useState(false);
   const [selectedInstruments, setSelectedInstruments] = useState<number[]>([]);
   // const [instruments, setInstruments] = useState<Instrument[]>([]);
+  const [showGenreSelector, setShowGenreSelector] = useState(false);
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
 
   const { data, loading, refetch } = useQuery(GET_USER_ARTIST, {
     variables: { userId: user?.id },
@@ -74,6 +77,12 @@ export const ProfilePage: React.FC = () => {
       console.log('IDs cargados:', ids);
     } else {
       setSelectedInstruments([]);
+    }
+  }, [hasArtist]);
+
+  useEffect(() => {
+    if (hasArtist?.lookingForGenres) {
+      setSelectedGenres(hasArtist.lookingForGenres);
     }
   }, [hasArtist]);
 
@@ -258,6 +267,54 @@ export const ProfilePage: React.FC = () => {
                             <p className="text-gray-500 text-sm">
                               No has seleccionado ningún instrumento. Haz clic en "Agregar" para
                               indicar qué instrumentos puedes tocar.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {/* 👇 NUEVA SECCIÓN DE GÉNEROS - COLOCAR AQUÍ, ANTES DEL </div> QUE CIERRA EL ARTISTA */}
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-white font-medium flex items-center gap-2">
+                          🎵 Géneros musicales que busco
+                        </h4>
+                        <button
+                          onClick={() => setShowGenreSelector(!showGenreSelector)}
+                          className="text-sm text-purple-400 hover:text-purple-300"
+                        >
+                          {showGenreSelector
+                            ? 'Cancelar'
+                            : selectedGenres.length > 0
+                              ? 'Editar'
+                              : 'Agregar'}
+                        </button>
+                      </div>
+
+                      {showGenreSelector ? (
+                        <GenreMultiSelect
+                          selectedGenres={selectedGenres}
+                          onSave={(genres) => {
+                            setSelectedGenres(genres);
+                            setShowGenreSelector(false);
+                            refetch();
+                          }}
+                          onCancel={() => setShowGenreSelector(false)}
+                        />
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedGenres.length > 0 ? (
+                            selectedGenres.map((genre) => (
+                              <span
+                                key={genre}
+                                className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm"
+                              >
+                                {genre}
+                              </span>
+                            ))
+                          ) : (
+                            <p className="text-gray-500 text-sm">
+                              No has seleccionado ningún género. Haz clic en "Agregar" para indicar
+                              qué géneros musicales buscas.
                             </p>
                           )}
                         </div>
