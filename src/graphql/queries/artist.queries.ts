@@ -190,6 +190,7 @@ export const SEARCH_ARTISTS_LOOKING_FOR_BAND = gql`
         name
         category
       }
+      lookingForGenres
       instruments {
         id
         name

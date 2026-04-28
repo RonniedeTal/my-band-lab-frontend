@@ -111,6 +111,29 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
               )}
             </div>
           )}
+
+          {/* generos que toca */}
+          {/* Géneros musicales que busca */}
+          {artist.lookingForGenres && artist.lookingForGenres.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500 mb-1">Géneros que busca:</p>
+              <div className="flex flex-wrap gap-1">
+                {artist.lookingForGenres.slice(0, 3).map((genre) => (
+                  <span
+                    key={genre}
+                    className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full"
+                  >
+                    {genre}
+                  </span>
+                ))}
+                {artist.lookingForGenres.length > 3 && (
+                  <span className="text-xs px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full">
+                    +{artist.lookingForGenres.length - 3}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </Link>
 
         {/* Botones de acción - solo visibles para usuarios autenticados */}

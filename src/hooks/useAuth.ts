@@ -25,8 +25,8 @@ interface LoginResponse {
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => getAuthToken()); // 👈 Estado para token
   const [user, setUser] = useState<User | null>(() => {
-    // Cargar usuario del localStorage al iniciar
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try {
@@ -38,7 +38,6 @@ export const useAuth = () => {
     return null;
   });
 
-  // Sincronizar user con localStorage cuando cambie
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -47,9 +46,11 @@ export const useAuth = () => {
     }
   }, [user]);
 
-  const getToken = () => {
-    return getAuthToken();
-  };
+  // 👈 Sincronizar token cuando cambia
+  useEffect(() => {
+    const newToken = getAuthToken();
+    setToken(newToken);
+  }, [user]); // Se actualiza cuando el usuario cambia
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -78,8 +79,8 @@ export const useAuth = () => {
 
       if (data.token) {
         setAuthToken(data.token);
+        setToken(data.token); // 👈 Actualizar estado del token
 
-        // Determinar el rol correctamente
         let userRole: 'USER' | 'ARTIST' | 'ADMIN' = 'USER';
         if (data.role === 'ADMIN') {
           userRole = 'ADMIN';
@@ -98,6 +99,7 @@ export const useAuth = () => {
 
         setUser(userData);
         console.log('✅ Login exitoso, rol:', userRole);
+        console.log('✅ Token guardado:', data.token);
 
         return { success: true, user: data };
       }
@@ -134,7 +136,6 @@ export const useAuth = () => {
       const data = await response.json();
       console.log('✅ Registro exitoso:', data);
 
-      // Auto-login después de registro
       if (data.id) {
         return await login(email, password);
       }
@@ -152,12 +153,13 @@ export const useAuth = () => {
 
   const logout = () => {
     removeAuthToken();
+    setToken(null);
     setUser(null);
     console.log('👋 Sesión cerrada');
   };
 
   const isAuthenticated = () => {
-    const hasToken = !!getAuthToken();
+    const hasToken = !!token;
     const hasUser = !!user;
     return hasToken && hasUser;
   };
@@ -170,6 +172,6 @@ export const useAuth = () => {
     user,
     loading,
     error,
-    token: getToken(),
+    token, // 👈 Devolver el estado del token, no la función
   };
 };

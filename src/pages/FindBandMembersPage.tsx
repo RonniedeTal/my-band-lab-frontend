@@ -23,6 +23,7 @@ interface Artist {
   profileImageUrl?: string;
   lookingForInstruments?: Instrument[];
   instruments?: Instrument[];
+  lookingForGenres?: string[];
 }
 
 export const FindBandMembersPage: React.FC = () => {
@@ -135,6 +136,32 @@ export const FindBandMembersPage: React.FC = () => {
       </div>
     );
   };
+  // 👉 Función separada para renderizar los géneros (fuera del tooltip)
+  const renderLookingForGenres = (artist: Artist) => {
+    const genres = artist.lookingForGenres || [];
+    if (genres.length === 0) return null;
+
+    return (
+      <div className="mt-3">
+        <p className="text-xs text-gray-500 mb-1">Géneros que busca:</p>
+        <div className="flex flex-wrap gap-1">
+          {genres.slice(0, 3).map((genre) => (
+            <span
+              key={genre}
+              className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full"
+            >
+              {genre}
+            </span>
+          ))}
+          {genres.length > 3 && (
+            <span className="text-xs px-2 py-0.5 bg-gray-700/50 text-gray-400 rounded-full">
+              +{genres.length - 3}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -196,6 +223,8 @@ export const FindBandMembersPage: React.FC = () => {
                   )}
 
                   {renderInstruments(artist, artist.id)}
+
+                  {renderLookingForGenres(artist)}
                 </Link>
               ))}
             </div>
