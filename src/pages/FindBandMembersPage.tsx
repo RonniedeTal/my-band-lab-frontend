@@ -7,6 +7,7 @@ import { Music, MapPin, Users, Loader2 } from 'lucide-react';
 import { LookingForBandBadge } from '../components/LookingForBandBadge';
 import { useAuth } from '../hooks/useAuth';
 import { InstrumentFilter } from '@/components/InstrumentFilter';
+import { LocationFilter } from '@/components/LocationFilter';
 
 interface Instrument {
   id: string;
@@ -36,6 +37,14 @@ export const FindBandMembersPage: React.FC = () => {
     return instruments ? instruments.split(',').map(Number) : [];
   });
 
+  const [selectedCountry, setSelectedCountry] = useState<string>(() => {
+    return searchParams.get('country') || '';
+  });
+
+  const [selectedCity, setSelectedCity] = useState<string>(() => {
+    return searchParams.get('city') || '';
+  });
+
   // Query para obtener el artista del usuario actual (para obtener su artistId)
   const {
     data: userArtistData,
@@ -56,6 +65,8 @@ export const FindBandMembersPage: React.FC = () => {
   } = useQuery(SEARCH_ARTISTS_LOOKING_FOR_BAND, {
     variables: {
       instrumentIds: selectedInstrumentIds.length > 0 ? selectedInstrumentIds : null,
+      country: selectedCountry || null,
+      city: selectedCity || null,
     },
     fetchPolicy: 'network-only',
   });
@@ -70,15 +81,30 @@ export const FindBandMembersPage: React.FC = () => {
     } else {
       params.delete('instrumentIds');
     }
+    // País
+    if (selectedCountry) {
+      params.set('country', selectedCountry);
+    } else {
+      params.delete('country');
+    }
+
+    // Ciudad
+    if (selectedCity) {
+      params.set('city', selectedCity);
+    } else {
+      params.delete('city');
+    }
     setSearchParams(params);
-  }, [selectedInstrumentIds]);
+  }, [selectedInstrumentIds, selectedCountry, selectedCity]);
 
   // 👈 REFETCH CUANDO CAMBIAN LOS FILTROS
   useEffect(() => {
     refetch({
       instrumentIds: selectedInstrumentIds.length > 0 ? selectedInstrumentIds : null,
+      country: selectedCountry || null,
+      city: selectedCity || null,
     });
-  }, [selectedInstrumentIds, refetch]);
+  }, [selectedInstrumentIds, selectedCountry, selectedCity, refetch]);
 
   // Obtener el artistId del usuario actual
   const currentArtistId = userArtistData?.artistByUserId?.id;
@@ -114,6 +140,9 @@ export const FindBandMembersPage: React.FC = () => {
     // Excluir al artista actual
     return String(artist.id) !== String(currentArtistId);
   });
+
+  // Contar filtros activos
+  const activeFiltersCount = (selectedInstrumentIds.length > 0 ? 1 : 0) + (selectedCountry ? 1 : 0);
 
   // Función para renderizar instrumentos con límite
   const renderInstruments = (artist: Artist, artistId: string) => {
@@ -212,7 +241,27 @@ export const FindBandMembersPage: React.FC = () => {
                 selectedInstrumentIds={selectedInstrumentIds}
                 onInstrumentChange={setSelectedInstrumentIds}
               />
+              <LocationFilter
+                selectedCountry={selectedCountry}
+                selectedCity={selectedCity}
+                onCountryChange={setSelectedCountry}
+                onCityChange={setSelectedCity}
+              />
+
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={() => {
+                    setSelectedInstrumentIds([]);
+                    setSelectedCountry('');
+                    setSelectedCity('');
+                  }}
+                  className="px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                >
+                  Limpiar todos ({activeFiltersCount})
+                </button>
+              )}
             </div>
+
             <p className="text-sm text-gray-400">
               {filteredArtists.length}{' '}
               {filteredArtists.length === 1 ? 'músico encontrado' : 'músicos encontrados'}
