@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { SEARCH_ARTISTS_LOOKING_FOR_BAND } from '../graphql/queries/artist.queries';
 import { GET_USER_ARTIST } from '../graphql/queries/user.queries';
 import { Music, MapPin, Users, Loader2 } from 'lucide-react';
 import { LookingForBandBadge } from '../components/LookingForBandBadge';
 import { useAuth } from '../hooks/useAuth';
+import { InstrumentFilter } from '@/components/InstrumentFilter';
 
 interface Instrument {
   id: string;
@@ -28,6 +29,12 @@ interface Artist {
 
 export const FindBandMembersPage: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [selectedInstrumentIds, setSelectedInstrumentIds] = useState<number[]>(() => {
+    const instruments = searchParams.get('instrumentIds');
+    return instruments ? instruments.split(',').map(Number) : [];
+  });
 
   // Query para obtener el artista del usuario actual (para obtener su artistId)
   const {
@@ -45,11 +52,33 @@ export const FindBandMembersPage: React.FC = () => {
     data: artistsData,
     loading: artistsLoading,
     error: artistsError,
+    refetch,
   } = useQuery(SEARCH_ARTISTS_LOOKING_FOR_BAND, {
+    variables: {
+      instrumentIds: selectedInstrumentIds.length > 0 ? selectedInstrumentIds : null,
+    },
     fetchPolicy: 'network-only',
   });
 
   const [hoveredArtist, setHoveredArtist] = useState<string | null>(null);
+
+  // 👈 SINCRONIZAR FILTROS CON URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (selectedInstrumentIds.length > 0) {
+      params.set('instrumentIds', selectedInstrumentIds.join(','));
+    } else {
+      params.delete('instrumentIds');
+    }
+    setSearchParams(params);
+  }, [selectedInstrumentIds]);
+
+  // 👈 REFETCH CUANDO CAMBIAN LOS FILTROS
+  useEffect(() => {
+    refetch({
+      instrumentIds: selectedInstrumentIds.length > 0 ? selectedInstrumentIds : null,
+    });
+  }, [selectedInstrumentIds, refetch]);
 
   // Obtener el artistId del usuario actual
   const currentArtistId = userArtistData?.artistByUserId?.id;
@@ -173,6 +202,20 @@ export const FindBandMembersPage: React.FC = () => {
             </h1>
             <p className="text-gray-400 text-lg">
               Conecta con artistas que están buscando formar o unirse a un proyecto musical
+            </p>
+          </div>
+
+          {/* 👉 BARRA DE FILTROS */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <InstrumentFilter
+                selectedInstrumentIds={selectedInstrumentIds}
+                onInstrumentChange={setSelectedInstrumentIds}
+              />
+            </div>
+            <p className="text-sm text-gray-400">
+              {filteredArtists.length}{' '}
+              {filteredArtists.length === 1 ? 'músico encontrado' : 'músicos encontrados'}
             </p>
           </div>
 

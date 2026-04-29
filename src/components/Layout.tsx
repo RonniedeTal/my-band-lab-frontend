@@ -99,7 +99,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
                 >
                   <UserPlus className="w-4 h-4" />
-                  Encontrar Banda
+                  Encontrar Colaboraciones
                 </Link>
 
                 {isAuthenticated() ? (
