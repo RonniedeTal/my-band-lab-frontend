@@ -175,9 +175,42 @@ export const GET_ARTISTS_BY_GENRE = gql`
     }
   }
 `;
+// export const SEARCH_ARTISTS_LOOKING_FOR_BAND = gql`
+//   query SearchArtistsLookingForBand {
+//     artistsLookingForBand {
+//       id
+//       stageName
+//       genre
+//       city
+//       country
+//       isLookingForBand
+//       profileImageUrl
+//       lookingForInstruments {
+//         id
+//         name
+//         category
+//       }
+//       lookingForGenres
+//       instruments {
+//         id
+//         name
+//       }
+//     }
+//   }
+// `;
 export const SEARCH_ARTISTS_LOOKING_FOR_BAND = gql`
-  query SearchArtistsLookingForBand {
-    artistsLookingForBand {
+  query SearchArtistsLookingForBand(
+    $genre: MusicGenre
+    $instrumentIds: [ID!]
+    $country: String
+    $city: String
+  ) {
+    artistsLookingForBand(
+      genre: $genre
+      instrumentIds: $instrumentIds
+      country: $country
+      city: $city
+    ) {
       id
       stageName
       genre
