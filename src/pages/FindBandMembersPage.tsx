@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { SEARCH_ARTISTS_LOOKING_FOR_BAND } from '../graphql/queries/artist.queries';
 import { GET_USER_ARTIST } from '../graphql/queries/user.queries';
-import { Music, MapPin, Users, Loader2 } from 'lucide-react';
+import { Music, MapPin, Users, Loader2, X } from 'lucide-react';
 import { LookingForBandBadge } from '../components/LookingForBandBadge';
 import { useAuth } from '../hooks/useAuth';
 import { InstrumentFilter } from '@/components/InstrumentFilter';
@@ -44,6 +44,32 @@ export const FindBandMembersPage: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>(() => {
     return searchParams.get('city') || '';
   });
+
+  const [instrumentsList, setInstrumentsList] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchInstruments = async () => {
+      try {
+        const response = await fetch('/api/instruments', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setInstrumentsList(data);
+        }
+      } catch (error) {
+        console.error('Error loading instruments:', error);
+      }
+    };
+    fetchInstruments();
+  }, []);
+
+  const getInstrumentName = (id: number): string => {
+    const instrument = instrumentsList.find((i) => i.id === id);
+    return instrument?.name || `Instrumento ${id}`;
+  };
 
   // Query para obtener el artista del usuario actual (para obtener su artistId)
   const {
@@ -106,6 +132,21 @@ export const FindBandMembersPage: React.FC = () => {
     });
   }, [selectedInstrumentIds, selectedCountry, selectedCity, refetch]);
 
+  const handleRemoveInstrument = (instrumentId: number) => {
+    setSelectedInstrumentIds((prev) => prev.filter((id) => id !== instrumentId));
+  };
+
+  const handleRemoveLocation = () => {
+    setSelectedCountry('');
+    setSelectedCity('');
+  };
+
+  const handleClearAll = () => {
+    setSelectedInstrumentIds([]);
+    setSelectedCountry('');
+    setSelectedCity('');
+  };
+
   // Obtener el artistId del usuario actual
   const currentArtistId = userArtistData?.artistByUserId?.id;
 
@@ -140,6 +181,8 @@ export const FindBandMembersPage: React.FC = () => {
     // Excluir al artista actual
     return String(artist.id) !== String(currentArtistId);
   });
+
+  const hasActiveFilters = selectedInstrumentIds.length > 0 || selectedCountry !== '';
 
   // Contar filtros activos
   const activeFiltersCount = (selectedInstrumentIds.length > 0 ? 1 : 0) + (selectedCountry ? 1 : 0);
@@ -267,6 +310,48 @@ export const FindBandMembersPage: React.FC = () => {
               {filteredArtists.length === 1 ? 'músico encontrado' : 'músicos encontrados'}
             </p>
           </div>
+
+          {/* 👉 BADGES DE FILTROS ACTIVOS */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 mb-6 p-3 bg-gray-800/30 rounded-lg">
+              <span className="text-sm text-gray-400">Filtros activos:</span>
+
+              {/* Badges de instrumentos individuales */}
+              {selectedInstrumentIds.map((id) => (
+                <span
+                  key={id}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs"
+                >
+                  {getInstrumentName(id)}
+                  <button
+                    onClick={() => handleRemoveInstrument(id)}
+                    className="hover:text-white ml-1"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+
+              {/* Badge de ubicación */}
+              {selectedCountry && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">
+                  <MapPin className="w-3 h-3" />
+                  {selectedCity ? `${selectedCity}, ${selectedCountry}` : selectedCountry}
+                  <button onClick={handleRemoveLocation} className="hover:text-white ml-1">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              {/* Botón limpiar todos */}
+              <button
+                onClick={handleClearAll}
+                className="ml-2 px-2 py-1 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+              >
+                Limpiar todos
+              </button>
+            </div>
+          )}
 
           {filteredArtists.length === 0 ? (
             <div className="text-center py-20 bg-gray-800/30 rounded-xl">
