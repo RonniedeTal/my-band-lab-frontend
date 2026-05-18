@@ -279,7 +279,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
 
       {/* Contenido principal */}
-      <main className={isMobile ? 'pb-16' : ''}>{children}</main>
+      <main className={isMobile ? 'pb-28' : ''}>{children}</main>
 
       {/* Navegación inferior (solo en móvil) */}
       {isMobile && <BottomNavigation />}

@@ -40,18 +40,25 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onPrevious,
   onClose,
 }) => {
-  // const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const hasRegisteredPlayRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const previousSongIdRef = useRef<number | undefined>(undefined);
 
   const { registerPlay } = useRegisterPlay();
   const { isPlaying, setIsPlaying } = useAudioPlayer();
+
+  // Detectar móvil
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Formatear tiempo (segundos a mm:ss)
   const formatTime = (seconds: number): string => {
@@ -75,7 +82,18 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         audioRef.current.play().catch((err) => console.log('Error playing:', err));
       }
     }
-  }, [currentSong, isPlaying]);
+  }, [currentSong]);
+
+  // Manejar play/pause sin recargar la canción
+  useEffect(() => {
+    if (audioRef.current && currentSong) {
+      if (isPlaying) {
+        audioRef.current.play().catch((err) => console.log('Error playing:', err));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying, currentSong]);
   // Registrar reproducción cuando se reproduce más de 30 segundos
   useEffect(() => {
     let timer: number;
@@ -174,8 +192,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
   return (
     <>
-      {/* Reproductor normal */}
-      {!isMinimized && (
+      {/* Reproductor normal - Desktop */}
+      {!isMinimized && !isMobile && (
         <div className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-gray-700 z-50">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center gap-4">
@@ -275,11 +293,61 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         </div>
       )}
 
+      {/* Reproductor Mobile */}
+      {!isMinimized && isMobile && (
+        <div className="fixed bottom-14 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-gray-700 z-50">
+          <div className="flex items-center justify-between px-3 py-2">
+            {/* Info canción */}
+            <button onClick={() => setIsMinimized(true)} className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Music className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-white text-sm font-medium truncate">{currentSong.title}</p>
+                <p className="text-gray-400 text-xs truncate">
+                  {currentSong.artistName || currentSong.groupName || 'Artista'}
+                </p>
+              </div>
+            </button>
+
+            {/* Controles */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={togglePlay}
+                className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center hover:opacity-90 transition-opacity flex-shrink-0"
+              >
+                {isPlaying ? (
+                  <Pause className="w-5 h-5 text-white" />
+                ) : (
+                  <Play className="w-5 h-5 text-white ml-0.5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Barra de progreso mini */}
+          <div className="px-3 pb-2">
+            <input
+              type="range"
+              min={0}
+              max={duration || 0}
+              value={currentTime}
+              onChange={handleSeek}
+              className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-purple-500 [&::-webkit-slider-thumb]:rounded-full"
+            />
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Reproductor minimizado */}
       {isMinimized && (
         <div
           onClick={() => setIsMinimized(false)}
-          className="fixed bottom-20 right-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-3 shadow-lg cursor-pointer hover:opacity-90 transition-opacity z-50 group"
+          className={`fixed ${isMobile ? 'bottom-20' : 'bottom-20'} right-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-3 shadow-lg cursor-pointer hover:opacity-90 transition-opacity z-50 group`}
         >
           {isPlaying ? (
             <Pause className="w-5 h-5 text-white" />
