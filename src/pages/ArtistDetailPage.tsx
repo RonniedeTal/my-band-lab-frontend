@@ -14,12 +14,17 @@ import {
   BookOpen,
   Disc,
   ListMusic,
+  Send,
+  Users,
+  Star,
+  Guitar,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useFollowArtist } from '../hooks/useFollowArtist';
 import { useFavoriteArtist } from '../hooks/useFavoriteArtist';
 import { LogoUploader } from '../components/LogoUploader';
 import { SongUploader } from '../components/SongUploader';
+import { LookingForBandBadge } from '../components/LookingForBandBadge';
 import type { Song } from '../types/song.types';
 import { AlbumList } from '@/components/AlbumList';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
@@ -31,19 +36,19 @@ import { MetaTags } from '../components/MetaTags';
 import { ShareButtons } from '../components/ShareButtons';
 import { ShareSongButton } from '@/components/ShareSongButton';
 
-type TabType = 'info' | 'songs' | 'albums';
+type TabType = 'songs' | 'albums' | 'info';
 
 const TABS = [
-  { id: 'info' as TabType, label: 'Información', icon: BookOpen },
   { id: 'songs' as TabType, label: 'Canciones', icon: ListMusic },
   { id: 'albums' as TabType, label: 'Álbumes', icon: Disc },
+  { id: 'info' as TabType, label: 'Información', icon: BookOpen },
 ];
 
 export const ArtistDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('info');
+  const [activeTab, setActiveTab] = useState<TabType>('songs');
 
   const { data, loading, error, refetch } = useQuery(GET_ARTIST_BY_ID, {
     variables: { id: parseInt(id || '0') },
@@ -143,13 +148,14 @@ export const ArtistDetailPage: React.FC = () => {
                       Verificado
                     </span>
                   )}
+                  {artist.isLookingForBand && <LookingForBandBadge size="md" />}
                 </div>
 
                 <p className="text-base md:text-xl text-gray-300 mb-3 md:mb-4">
                   {artist.user?.name} {artist.user?.surname}
                 </p>
 
-                <div className="flex flex-wrap gap-2 md:gap-3">
+                <div className="flex flex-wrap gap-2 md:gap-3 items-center">
                   <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">
                     {artist.genre}
                   </span>
@@ -157,6 +163,12 @@ export const ArtistDetailPage: React.FC = () => {
                     <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm flex items-center gap-1">
                       <Music className="w-3 h-3" />
                       {artist.mainInstrument.name}
+                    </span>
+                  )}
+                  {(artist.city || artist.country) && (
+                    <span className="px-3 py-1 bg-gray-700/50 text-gray-300 rounded-full text-sm flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {[artist.city, artist.country].filter(Boolean).join(', ')}
                     </span>
                   )}
                 </div>
