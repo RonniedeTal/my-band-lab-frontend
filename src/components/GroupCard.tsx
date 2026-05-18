@@ -21,9 +21,7 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
     <div className="block group">
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-5 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
         <Link to={`/groups/${group.id}`} className="block">
-          {/* Logo y nombre en la misma fila */}
           <div className="flex items-center gap-3 mb-3">
-            {/* Logo del grupo */}
             {group.logoUrl ? (
               <img
                 src={group.logoUrl}
@@ -77,7 +75,6 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
           </div>
         </Link>
 
-        {/* Botones de acción - solo visibles para usuarios autenticados */}
         {user && (
           <div className="flex gap-2 mt-3 pt-3 border-t border-gray-700">
             <button

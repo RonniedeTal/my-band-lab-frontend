@@ -25,9 +25,7 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
     <div className="block group">
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-5 backdrop-blur-sm border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-[1.02]">
         <Link to={`/artists/${artist.id}`} className="block">
-          {/* Logo y nombre en la misma fila */}
           <div className="flex items-center gap-3 mb-3">
-            {/* Logo del artista */}
             {artist.logoUrl ? (
               <img
                 src={artist.logoUrl}
@@ -69,7 +67,6 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
             {artist.biography || 'Sin biografía disponible'}
           </p>
 
-          {/* ✅ INSTRUMENTOS CON LIMITACIÓN Y TOOLTIP */}
           {instruments.length > 0 && (
             <div
               className="relative mt-2"
@@ -92,7 +89,6 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
                 )}
               </div>
 
-              {/* Tooltip con lista completa */}
               {showTooltip && remainingCount > 0 && (
                 <div className="absolute bottom-full left-0 mb-2 z-10 bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-2 min-w-[150px]">
                   <p className="text-xs text-gray-400 mb-1">Instrumentos:</p>
@@ -112,8 +108,6 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
             </div>
           )}
 
-          {/* generos que toca */}
-          {/* Géneros musicales que busca */}
           {artist.lookingForGenres && artist.lookingForGenres.length > 0 && (
             <div className="mt-3">
               <p className="text-xs text-gray-500 mb-1">Géneros que busca:</p>
@@ -136,7 +130,6 @@ export const ArtistCard: React.FC<ArtistCardProps> = ({ artist }) => {
           )}
         </Link>
 
-        {/* Botones de acción - solo visibles para usuarios autenticados */}
         {user && (
           <div className="flex gap-2 mt-3 pt-3 border-t border-gray-700">
             <button
