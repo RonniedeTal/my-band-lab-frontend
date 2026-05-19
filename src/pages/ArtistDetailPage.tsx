@@ -14,10 +14,7 @@ import {
   BookOpen,
   Disc,
   ListMusic,
-  Send,
-  Users,
-  Star,
-  Guitar,
+  ListMusicIcon,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useFollowArtist } from '../hooks/useFollowArtist';
@@ -35,12 +32,14 @@ import { AddToPlaylistButton } from '../components/AddToPlaylistButton';
 import { MetaTags } from '../components/MetaTags';
 import { ShareButtons } from '../components/ShareButtons';
 import { ShareSongButton } from '@/components/ShareSongButton';
+import { usePlaylistsByArtist } from '../hooks/usePlaylistsByArtist';
 
-type TabType = 'songs' | 'albums' | 'info';
+type TabType = 'songs' | 'albums' | 'playlists' | 'info';
 
 const TABS = [
   { id: 'songs' as TabType, label: 'Canciones', icon: ListMusic },
   { id: 'albums' as TabType, label: 'Álbumes', icon: Disc },
+  { id: 'playlists' as TabType, label: 'Playlists', icon: ListMusicIcon },
   { id: 'info' as TabType, label: 'Información', icon: BookOpen },
 ];
 
@@ -65,6 +64,11 @@ export const ArtistDetailPage: React.FC = () => {
 
   const { topSongs, loading: topSongsLoading } = useTopSongsByArtist(artist?.id as number, 5);
 
+  const { playlists: playlistsWithArtist, loading: playlistsLoading } = usePlaylistsByArtist(
+    artist?.id as number,
+    artist?.songs
+  );
+
   const songsWithArtistInfo =
     artist?.songs?.map((song: Song) => ({
       ...song,
@@ -75,6 +79,7 @@ export const ArtistDetailPage: React.FC = () => {
 
   const getSongsCount = () => artist?.songs?.length || 0;
   const getAlbumsCount = () => artist?.albums?.length || 0;
+  const getPlaylistsCount = () => playlistsWithArtist.length || 0;
 
   if (loading) {
     return (
@@ -201,6 +206,11 @@ export const ArtistDetailPage: React.FC = () => {
                   {tab.id === 'albums' && getAlbumsCount() > 0 && (
                     <span className="ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded-full text-xs">
                       {getAlbumsCount()}
+                    </span>
+                  )}
+                  {tab.id === 'playlists' && getPlaylistsCount() > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded-full text-xs">
+                      {getPlaylistsCount()}
                     </span>
                   )}
                 </button>
@@ -471,6 +481,59 @@ export const ArtistDetailPage: React.FC = () => {
                   {isOwner && (
                     <p className="text-gray-500 text-sm mt-2">Crea tu primer álbum</p>
                   )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab: Playlists */}
+          {activeTab === 'playlists' && (
+            <div className="space-y-6">
+              {playlistsLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                </div>
+              ) : playlistsWithArtist.length > 0 ? (
+                <div className="bg-gray-800/30 rounded-xl p-4 md:p-6">
+                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <ListMusicIcon className="w-5 h-5 text-purple-400" />
+                    Playlists con canciones de {artist.stageName} ({playlistsWithArtist.length})
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {playlistsWithArtist.map((playlist) => (
+                      <a
+                        key={playlist.id}
+                        href={`/playlists/${playlist.id}`}
+                        className="flex items-center gap-3 p-3 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-colors group"
+                      >
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          {playlist.coverImageUrl ? (
+                            <img
+                              src={playlist.coverImageUrl}
+                              alt={playlist.title}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <ListMusicIcon className="w-6 h-6 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium truncate">{playlist.title}</p>
+                          <p className="text-xs text-gray-400">
+                            {playlist.user?.name} {playlist.user?.surname}
+                          </p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-800/30 rounded-xl p-8 text-center">
+                  <ListMusicIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400">No hay playlists con canciones de este artista</p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    Las playlists que incluyan canciones de {artist.stageName} aparecerán aquí
+                  </p>
                 </div>
               )}
             </div>
