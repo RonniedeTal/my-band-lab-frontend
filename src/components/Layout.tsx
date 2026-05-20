@@ -15,9 +15,11 @@ import {
   Heart,
   ListMusic,
   UserPlus,
+  MessageSquare,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { NotificationBell } from './NotificationBell';
+import { ChatIcon } from './messages/ChatIcon';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -142,6 +144,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </Link>
                     <div className="flex items-center gap-3">
                       <NotificationBell />
+                      <ChatIcon />
                     </div>
                     <Button onClick={handleLogout} variant="outline" size="sm">
                       <LogOut className="w-4 h-4 mr-1" />
@@ -261,6 +264,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Button variant="ghost" className="w-full justify-start gap-2">
                         <UserIcon className="w-4 h-4" />
                         Mi Perfil
+                      </Button>
+                    </Link>
+                    <Link to="/messages" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start gap-2">
+                        <MessageSquare className="w-4 h-4" />
+                        Mensajes
                       </Button>
                     </Link>
                     <button

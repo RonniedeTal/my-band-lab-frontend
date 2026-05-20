@@ -2,7 +2,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { getAuthToken } from './apollo';
 
-const WS_URL = 'http://localhost:9000/ws';
+const WS_URL = '/ws';
 
 class WebSocketService {
   private client: Client | null = null;

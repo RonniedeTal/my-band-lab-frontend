@@ -25,6 +25,8 @@ import { LookingForBandBadge } from '../components/LookingForBandBadge';
 import type { Song } from '../types/song.types';
 import { AlbumList } from '@/components/AlbumList';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
+import { ContactModal } from '../components/messages/ContactModal';
+import { MessageSquare } from 'lucide-react';
 
 import { TopSongs } from '../components/TopSongs';
 import { useTopSongsByArtist } from '../hooks/useSongPlay';
@@ -59,6 +61,7 @@ export const ArtistDetailPage: React.FC = () => {
   const { playSong } = useAudioPlayer();
   const { isFollowing, toggleFollow } = useFollowArtist(artist?.id as number);
   const { isFavorite, toggleFavorite } = useFavoriteArtist(artist?.id as number);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   const isOwner = String(user?.id) === String(artist?.user?.id);
 
@@ -354,6 +357,16 @@ export const ArtistDetailPage: React.FC = () => {
                         <Heart className={`w-4 h-4 ${isFavorite ? 'fill-pink-400' : ''}`} />
                         {isFavorite ? 'En Favoritos' : 'Favorito'}
                       </button>
+
+                      {!isOwner && (
+                        <button
+                          onClick={() => setShowContactModal(true)}
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg transition-all hover:bg-blue-500/30"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Contactar
+                        </button>
+                      )}
                     </>
                   ) : (
                     <Button onClick={() => navigate('/login')} variant="primary" className="w-full sm:w-auto">

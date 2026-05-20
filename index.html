@@ -5,7 +5,11 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>my-band-lab-frontend</title>
+    <title>MyBandLab</title>
+    <script>
+      // Fix for sockjs-client expecting global
+      var global = globalThis;
+    </script>
   </head>
   <body>
     <div id="root"></div>

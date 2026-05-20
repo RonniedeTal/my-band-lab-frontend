@@ -26,6 +26,8 @@ const FavoriteGroupsPage = lazy(() => import('./pages/FavoriteGroupsPage'));
 const PlaylistsPage = lazy(() => import('./pages/PlaylistsPage'));
 const PlaylistDetailPage = lazy(() => import('./pages/PlaylistDetailPage'));
 const FindBandMembersPage = lazy(() => import('./pages/FindBandMembersPage'));
+import { MessagesPage } from './components/messages/MessagesPage';
+import { ConversationPage } from './components/messages/ConversationPage';
 
 function App() {
   return (
@@ -54,6 +56,9 @@ function App() {
               <Route path="/playlists/:id" element={<PlaylistDetailPage />} />
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/favorite-groups" element={<FavoriteGroupsPage />} />
+              <Route path="/messages" element={<MessagesPage />}>
+                <Route path=":userId" element={<ConversationPage />} />
+              </Route>
             </Route>
 
             {/* Rutas de administración */}
