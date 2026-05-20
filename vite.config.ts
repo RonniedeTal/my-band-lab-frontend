@@ -126,6 +126,13 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/ws': {
+        target: 'ws://localhost:9000',
+        ws: true,
+      },
+    },
+  define: {
+      global: 'globalThis',
     },
   },
 
